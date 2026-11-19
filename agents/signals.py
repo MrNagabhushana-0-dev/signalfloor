@@ -1,5 +1,28 @@
 """Market data + signal computation for SignalFloor (SIMULATION ONLY)."""
 import math
+import os
+
+# SignalFloor's OWN calibration for the vendored Finch "RSI Zone Reversal" skill.
+# The skill ships no default thresholds by design (raises PARAM_INCOMPLETE);
+# these are our values, matching the rules the analyst used before integration.
+FINCH_PARAMS = {"rsi_period": 14, "oversold": 30.0, "overbought": 70.0}
+_FINCH_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "vendor",
+                             "finch-rsi-zone-reversal", "rsi-divergence_finchip",
+                             "scripts", "rsi_zone_reversal.py")
+
+def _finch_decision(hist):
+    """Run the vendored Finch RSI Zone Reversal skill (Apache-2.0) on our own
+    yfinance daily bars. No network: we pass frames directly to evaluate()."""
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("finch_rsi_zone_reversal", _FINCH_SCRIPT)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        frames = [[int(t.timestamp() * 1000), float(r.Open), float(r.High),
+                   float(r.Low), float(r.Close), float(r.Volume)] for t, r in hist.iterrows()]
+        return mod.evaluate({"frames": frames, "state": {}, "symbol": ""}, FINCH_PARAMS)
+    except Exception as e:
+        return {"action": "error", "reason": str(e)[:120]}
 
 def _rsi(closes, period=14):
     if len(closes) < period + 1:
@@ -43,6 +66,7 @@ def fetch_snapshots(symbols):
                 "sma30": round(_sma(closes, 30), 2) if _sma(closes, 30) else None,
                 "rsi14": round(_rsi(closes), 1) if _rsi(closes) is not None else None,
                 "change_pct": round((price - prev) / prev * 100, 2) if prev else 0.0,
+                "finch": _finch_decision(hist),
             }
         except Exception as e:
             out[sym] = {"error": str(e)[:120]}
@@ -60,10 +84,16 @@ def pick_signal(snapshots, demo=False):
             side, reason = "BUY", ["sma10>sma30 uptrend", f"rsi {s['rsi14']} < 70"]
         elif s["sma10"] < s["sma30"] and s["rsi14"] > 30:
             side, reason = "SELL", ["sma10<sma30 downtrend", f"rsi {s['rsi14']} > 30"]
-        if s["rsi14"] <= 30:
-            side, reason = "BUY", [f"rsi {s['rsi14']} oversold"]
-        elif s["rsi14"] >= 70:
-            side, reason = "SELL", [f"rsi {s['rsi14']} overbought"]
+        fz = s.get("finch") or {}
+        if fz.get("action") == "long":
+            side, reason = "BUY", [f"finch rsi-zone-reversal skill: {fz.get('reason')}"]
+        elif fz.get("action") == "exit":
+            side, reason = "SELL", [f"finch rsi-zone-reversal skill: {fz.get('reason')}"]
+        elif fz.get("action") == "flat":
+            # Finch zone-transition replaces the old naked RSI state rule:
+            # an extreme READING alone no longer triggers an entry (avoids
+            # repeated entries while RSI stays pinned, per the skill's design).
+            side, reason = None, [f"finch: {fz.get('reason')}"]
         if side:
             score = abs(s["sma10"] - s["sma30"]) / s["sma30"] + abs(s["rsi14"] - 50) / 100.0
             if best is None or score > best[0]:
