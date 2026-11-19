@@ -22,6 +22,7 @@ WATCHLIST = os.environ.get("WATCHLIST", "RELIANCE.NS,TCS.NS,INFY.NS,HDFCBANK.NS,
 CYCLE_SECONDS = int(os.environ.get("CYCLE_SECONDS", "900"))
 MAX_CYCLES = int(os.environ.get("MAX_CYCLES", "0"))  # 0 = run forever (deployment); tests set a bound
 DEMO_MODE = os.environ.get("DEMO_MODE", "true").lower() == "true"
+POST_STATUS = os.environ.get("POST_STATUS", "true").lower() == "true"  # post visible NO-TRADE status on flat cycles
 EXECUTOR_HANDLE = os.environ.get("EXECUTOR_HANDLE", "mr.nagabhushana.dev/trade-executor")
 ROOM_ID = os.environ.get("BAND_ROOM_ID", "49aadbc7-32f4-4a1b-b3b0-2e69307defef")
 
@@ -66,6 +67,17 @@ async def signal_loop():
                 print(f"[market-analyst] posted signal {sym} {side} @ {s['price']} resp={bool(resp)}", flush=True)
             else:
                 log.info("no actionable signal this cycle")
+                if POST_STATUS:
+                    notes = []
+                    for sym2, s2 in snaps.items():
+                        fz2 = (s2 or {}).get("finch") or {}
+                        if fz2.get("reason"):
+                            notes.append(f"{sym2}: {fz2['reason']}")
+                    note = ("STATUS NO-TRADE cycle (strategy v2, Finch RSI zone-transition, delayed public data): "
+                            + (" | ".join(notes) if notes else "no market data"))
+                    resp = await post_message(rest=rest, room_id=ROOM_ID,
+                                              request=ChatMessageRequest(content=note, mentions=[mention]))  # BAND requires >=1 mention
+                    print(f"[market-analyst] posted no-trade status resp={bool(resp)}", flush=True)
         except Exception:
             import traceback; traceback.print_exc()
         await asyncio.sleep(CYCLE_SECONDS)
