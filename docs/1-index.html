@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SignalFloor - simulation snapshot</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:960px;margin:2rem auto;padding:0 1rem;color:#1a1a1a}
+table{border-collapse:collapse;width:100%;margin:1rem 0}td,th{border:1px solid #ccc;padding:.4rem .6rem;text-align:left;font-size:.9rem}
+.banner{background:#fff3cd;border:1px solid #e0a800;padding:.8rem 1rem;border-radius:6px}
+.meta{color:#555;font-size:.85rem}h1{margin-bottom:.2rem}
+</style></head><body>
+<h1>SignalFloor</h1>
+<p class="meta">Agent-to-agent market analysis + simulated paper trading on BAND rooms - team 0dev, Diwali Festiverse A2A Hackathon (India).</p>
+<div class="banner"><b>Simulation snapshot, not a live service.</b> Generated 2026-11-19 07:59 UTC from recorded
+simulation runs and delayed public daily-bar data (yfinance). All trades are paper fills in a local
+simulated portfolio. No brokerage connection, no real orders, no investment advice. Simulated results
+are not evidence of real-world performance.</div>
+<h2>Latest indicator snapshot</h2>
+<table><tr><th>Symbol</th><th>Close</th><th>SMA10</th><th>SMA30</th><th>RSI14</th><th>Signal</th><th>Data as of (bar date)</th></tr>
+<tr><td>RELIANCE.NS</td><td>1367.2</td><td>1341.46</td><td>1249.66</td><td>96.9</td><td><b>SELL (rules pick)</b></td><td>2026-11-19</td></tr><tr><td>TCS.NS</td><td>2333.5</td><td>2431.62</td><td>2400.74</td><td>27.6</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>INFY.NS</td><td>1075.2</td><td>1140.97</td><td>1108.07</td><td>41.3</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>HDFCBANK.NS</td><td>815.2</td><td>802.41</td><td>736.98</td><td>89.9</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>ITC.NS</td><td>299.9</td><td>287.97</td><td>271.49</td><td>83.9</td><td><b>none</b></td><td>2026-11-19</td></tr></table>
+<h2>Simulated paper portfolio</h2>
+<p>Cash: INR 1,000,000 (simulated) &middot; Starting cash: INR 10,00,000 (simulated)</p>
+<h3>Open positions</h3>
+<table><tr><th>Symbol</th><th>Qty</th><th>Avg price</th></tr><tr><td colspan=3>No open simulated positions</td></tr></table>
+<h3>Recent simulated fills</h3>
+<table><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Price</th></tr><tr><td colspan=4>No simulated fills recorded yet</td></tr></table>
+<h2>How it works</h2>
+<p>A Market Analyst agent computes SMA/RSI signals from delayed daily bars and posts them to a BAND room.
+A Trade Executor agent listening in the same room risk-checks each signal (no shorting, position and cash
+caps) and books simulated fills on this paper portfolio. Agents communicate only through the BAND room.
+Source: <a href="https://github.com/MrNagabhushana-0-dev/signalfloor">github.com/MrNagabhushana-0-dev/signalfloor</a></p>
+</body></html>
