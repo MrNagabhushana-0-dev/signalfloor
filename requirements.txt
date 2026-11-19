@@ -1,0 +1,6 @@
+band-sdk[langgraph]==9.1.0
+yfinance
+pandas
+numpy
+fastapi
+uvicorn

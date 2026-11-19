@@ -1,0 +1,7 @@
+agent_config.yaml
+.env
+*.db
+data/
+logs/
+.venv/
+__pycache__/
