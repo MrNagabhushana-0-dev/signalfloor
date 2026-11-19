@@ -9,19 +9,19 @@ table{border-collapse:collapse;width:100%;margin:1rem 0}td,th{border:1px solid #
 </style></head><body>
 <h1>SignalFloor</h1>
 <p class="meta">Agent-to-agent market analysis + simulated paper trading on BAND rooms - team 0dev, Diwali Festiverse A2A Hackathon (India).</p>
-<div class="banner"><b>Simulation snapshot, not a live service.</b> Generated 2026-11-19 09:58 UTC from recorded
+<div class="banner"><b>Simulation snapshot, not a live service.</b> Generated 2026-11-19 13:38 UTC from recorded
 simulation runs and delayed public daily-bar data (yfinance). All trades are paper fills in a local
 simulated portfolio. No brokerage connection, no real orders, no investment advice. Simulated results
 are not evidence of real-world performance.</div>
 <h2>Latest indicator snapshot</h2>
 <table><tr><th>Symbol</th><th>Close</th><th>SMA10</th><th>SMA30</th><th>RSI14</th><th>Signal</th><th>Data as of (bar date)</th></tr>
-<tr><td>RELIANCE.NS</td><td>1376.6</td><td>1342.4</td><td>1249.97</td><td>97.1</td><td><b>SELL (rules pick)</b></td><td>2026-11-19</td></tr><tr><td>TCS.NS</td><td>2347.5</td><td>2433.02</td><td>2401.21</td><td>28.8</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>INFY.NS</td><td>1090.6</td><td>1142.51</td><td>1108.59</td><td>43.9</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>HDFCBANK.NS</td><td>821.0</td><td>802.99</td><td>737.17</td><td>90.3</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>ITC.NS</td><td>301.15</td><td>288.1</td><td>271.53</td><td>84.3</td><td><b>none</b></td><td>2026-11-19</td></tr></table>
+<tr><td>RELIANCE.NS</td><td>1375.6</td><td>1342.3</td><td>1249.94</td><td>97.1</td><td><b>SELL (rules pick)</b></td><td>2026-11-19</td></tr><tr><td>TCS.NS</td><td>2342.7</td><td>2432.54</td><td>2401.05</td><td>28.4</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>INFY.NS</td><td>1091.9</td><td>1142.64</td><td>1108.63</td><td>44.1</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>HDFCBANK.NS</td><td>821.8</td><td>803.07</td><td>737.2</td><td>90.3</td><td><b>none</b></td><td>2026-11-19</td></tr><tr><td>ITC.NS</td><td>301.0</td><td>288.08</td><td>271.53</td><td>84.3</td><td><b>none</b></td><td>2026-11-19</td></tr></table>
 <h2>Simulated paper portfolio</h2>
-<p>Cash: INR 751,165 (simulated) &middot; Starting cash: INR 10,00,000 (simulated)</p>
+<p>Cash: INR 502,839 (simulated) &middot; Starting cash: INR 10,00,000 (simulated)</p>
 <h3>Open positions</h3>
-<table><tr><th>Symbol</th><th>Qty</th><th>Avg price</th></tr><tr><td>TCS.NS</td><td>106</td><td>2347.5</td></tr></table>
+<table><tr><th>Symbol</th><th>Qty</th><th>Avg price</th></tr><tr><td>TCS.NS</td><td>212</td><td>2345.1</td></tr></table>
 <h3>Recent simulated fills</h3>
-<table><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Price</th></tr><tr><td>2026-11-19T09:56:34+00:00</td><td>TCS.NS</td><td>BUY</td><td>2347.5</td></tr></table>
+<table><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Price</th></tr><tr><td>2026-11-19T09:56:34+00:00</td><td>TCS.NS</td><td>BUY</td><td>2347.5</td></tr><tr><td>2026-11-19T12:10:00+00:00</td><td>TCS.NS</td><td>BUY</td><td>2342.7</td></tr></table>
 <h2>How it works</h2>
 <p>A Market Analyst agent computes SMA/RSI signals from delayed daily bars and posts them to a BAND room.
 A Trade Executor agent listening in the same room risk-checks each signal (no shorting, position and cash
