@@ -29,11 +29,29 @@ def latest_indicators():
         if "error" in s:
             rows.append({"symbol": sym, "error": s["error"]})
             continue
+        fz = s.get("finch") or {}
+        def _r1(x):
+            return round(x, 1) if isinstance(x, (int, float)) else "?"
+        finch_txt = (str(fz.get("action", "?")) + " " + str(_r1(fz.get("rsi_prev"))) + "->" + str(_r1(fz.get("rsi_now")))) if fz else "n/a"
         rows.append({"symbol": sym, "close": s["price"], "sma10": s["sma10"],
-                     "sma30": s["sma30"], "rsi14": s["rsi14"],
-                     "signal": (picked_side + " (rules pick)" if sym == picked_sym else "none"),
+                     "sma30": s["sma30"], "rsi14": s["rsi14"], "finch": finch_txt,
+                     "signal": (picked_side + " (v2 pick)" if sym == picked_sym else "none"),
                      "asof": s["asof"]})
     return rows
+
+def inr(n):
+    """Indian digit grouping: 502838.8 -> 5,02,839."""
+    n = int(round(n))
+    s = str(abs(n))
+    if len(s) <= 3:
+        out = s
+    else:
+        out = s[-3:]
+        s = s[:-3]
+        while s:
+            out = s[-2:] + "," + out
+            s = s[:-2]
+    return ("-" if n < 0 else "") + out
 
 def main():
     gen_at = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -43,7 +61,7 @@ def main():
     trade_rows = ""
     cash = "n/a"
     if pf:
-        cash = f"INR {pf['cash']:,.0f} (simulated)"
+        cash = f"INR {inr(pf['cash'])} (simulated)"
         for sym, pos in (pf.get("positions") or {}).items():
             pos_rows += f"<tr><td>{html.escape(sym)}</td><td>{pos.get('qty')}</td><td>{pos.get('avg_price', pos.get('avg'))}</td></tr>"
         for t in (pf.get("trades") or [])[-20:]:
@@ -56,8 +74,8 @@ def main():
             ind_rows += f"<tr><td>{html.escape(r['symbol'])}</td><td colspan=6>data unavailable at generation time</td></tr>"
         else:
             ind_rows += ("<tr><td>{symbol}</td><td>{close}</td><td>{sma10}</td><td>{sma30}</td>"
-                         "<td>{rsi14}</td><td><b>{signal}</b></td><td>{asof}</td></tr>").format(**{k: html.escape(str(v)) for k, v in r.items()})
-    page = TEMPLATE.format(gen_at=gen_at, ind_rows=ind_rows, cash=cash,
+                         "<td>{rsi14}</td><td>{finch}</td><td><b>{signal}</b></td><td>{asof}</td></tr>").format(**{k: html.escape(str(v)) for k, v in r.items()})
+    page = TEMPLATE.format(gen_at=gen_at, ind_rows=ind_rows, cash=cash, starting_cash=inr(pf["starting_cash"]) if pf else "n/a",
                            pos_rows=pos_rows or '<tr><td colspan=3>No open simulated positions</td></tr>',
                            trade_rows=trade_rows or '<tr><td colspan=4>No simulated fills recorded yet</td></tr>')
     OUT.write_text(page)
@@ -79,10 +97,10 @@ simulation runs and delayed public daily-bar data (yfinance). All trades are pap
 simulated portfolio. No brokerage connection, no real orders, no investment advice. Simulated results
 are not evidence of real-world performance.</div>
 <h2>Latest indicator snapshot</h2>
-<table><tr><th>Symbol</th><th>Close</th><th>SMA10</th><th>SMA30</th><th>RSI14</th><th>Signal</th><th>Data as of (bar date)</th></tr>
+<table><tr><th>Symbol</th><th>Close</th><th>SMA10</th><th>SMA30</th><th>RSI14 (simple)</th><th>Finch RSI zone-transition (Wilder, prev-&gt;now)</th><th>Signal</th><th>Data as of (bar date)</th></tr>
 {ind_rows}</table>
 <h2>Simulated paper portfolio</h2>
-<p>Cash: {cash} &middot; Starting cash: INR 10,00,000 (simulated)</p>
+<p>Cash: {cash} &middot; Starting cash: INR {starting_cash} (simulated)</p>
 <h3>Open positions</h3>
 <table><tr><th>Symbol</th><th>Qty</th><th>Avg price</th></tr>{pos_rows}</table>
 <h3>Recent simulated fills</h3>
