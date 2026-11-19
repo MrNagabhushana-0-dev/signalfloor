@@ -1,5 +1,5 @@
 """Paper portfolio for SignalFloor. SIMULATION ONLY - no real trades."""
-import json, os, threading
+import json, os, threading, datetime
 
 class PaperPortfolio:
     def __init__(self, path, starting_cash=1_000_000.0, max_position_pct=0.25, max_open=5):
@@ -38,7 +38,7 @@ class PaperPortfolio:
                 p["qty"] = new_qty
                 pos[symbol] = p
                 self.state["cash"] = round(cash - cost, 2)
-                self.state["trades"].append({"side": "BUY", "symbol": symbol, "qty": qty, "price": price})
+                self.state["trades"].append({"ts": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), "side": "BUY", "symbol": symbol, "qty": qty, "price": price})
                 self._save()
                 return True, f"SIM BUY {qty} {symbol} @ {price} (avg {p['avg']})"
             else:
@@ -50,7 +50,7 @@ class PaperPortfolio:
                 pnl = round((price - p["avg"]) * qty, 2)
                 del pos[symbol]
                 self.state["cash"] = round(cash + proceeds, 2)
-                self.state["trades"].append({"side": "SELL", "symbol": symbol, "qty": qty, "price": price, "pnl": pnl})
+                self.state["trades"].append({"ts": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), "side": "SELL", "symbol": symbol, "qty": qty, "price": price, "pnl": pnl})
                 self._save()
                 return True, f"SIM SELL {qty} {symbol} @ {price} (trade P&L {pnl:+.2f})"
 
