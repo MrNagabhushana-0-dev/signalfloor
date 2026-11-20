@@ -32,16 +32,42 @@ a snapshot (`analyze`) or portfolio status (`status`).
 
 ## Sponsor platforms
 
-- **BAND** — agent registration, A2A room transport, mentions, history (core).
-- **Agent37** — sandbox hosting for the always-on agents *(planned)*.
-- **AdaL** — demo walkthrough video *(planned)*.
+- **BAND** — agent registration, A2A room transport, mentions, history (core, in use).
+- **Finch** — the RSI Zone Reversal skill (free, Apache-2.0) is vendored under
+  `vendor/finch-rsi-zone-reversal/` with its LICENSE and governs v2 entries.
+- **AdaL** — account created and CLI authenticated; video generation requires paid
+  plan credits, not activated for this submission. The demo walkthrough video is
+  assembled from scripted screen capture instead.
+- **Lyzr** — signup was blocked by the site's bot protection during the hackathon
+  window. No integration claimed.
+- **Agent37** — persistent hosting requires a funded wallet; not activated. The
+  free GitHub Pages snapshot serves as the public demo artifact.
+
+## Strategy versions
+
+Both evidence runs are from 2026-11-19 and labeled wherever they appear:
+
+- **v1 (daytime)** — hand-rolled rules: simple-average RSI including the latest
+  bar + SMA trend rules. Genuine fills: 2 x SIM BUY 106 TCS.NS (@ 2347.5, @ 2342.7)
+  on an oversold reading (RSI 28.4). Watchlist narrowed to TCS.NS for the demo —
+  a disclosed config choice.
+- **v2 (evening)** — entries gated by the Finch skill: Wilder RSI on completed
+  bars, entry only on crossing back OUT of oversold. Thresholds are ours
+  (14 / 30 / 70); the skill ships no defaults by design. First v2 output was a
+  verified NO-TRADE cycle (TCS 50.7 -> 47.0, no zone transition). No forced trades.
+
+The RSI numbers differ by construction (simple vs Wilder, latest vs completed
+bar); dashboard, this README and the pitch deck show both, labeled.
 
 ## Signals
 
 Per watchlist symbol (default: `RELIANCE.NS,TCS.NS,INFY.NS,HDFCBANK.NS,ITC.NS`):
 
-- `BUY`  when SMA10 > SMA30 with RSI < 70, or RSI ≤ 30 (oversold)
-- `SELL` when SMA10 < SMA30 with RSI > 30, or RSI ≥ 70 (overbought)
+- v2 (current): the Finch RSI Zone Reversal skill evaluates the analyst's bars;
+  `BUY` only on a transition back out of the oversold zone, `SELL` only on a
+  transition back out of overbought.
+- v1 (provenance): `BUY` when SMA10 > SMA30 with RSI < 70, or RSI ≤ 30
+  (oversold); `SELL` when SMA10 < SMA30 with RSI > 30, or RSI ≥ 70 (overbought).
 
 Every signal message carries its data provenance (`asof=` bar date) and a
 delayed-data / simulation disclaimer.
