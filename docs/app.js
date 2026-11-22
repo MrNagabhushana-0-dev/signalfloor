@@ -269,14 +269,25 @@
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  /* ---------- deep-link state (?sym=TCS.NS&idx=93) ---------- */
+  function applyParams() {
+    var q = new URLSearchParams(location.search);
+    var s = q.get("sym");
+    if (s && DATA[s]) cur.sym = s;
+    var i = parseInt(q.get("idx"), 10);
+    if (!isNaN(i)) cur.idx = Math.max(44, Math.min(DATA[cur.sym].length - 1, i));
+  }
+
   /* ---------- events ---------- */
   function init() {
+    applyParams();
     var picker = $("sym-picker");
     SYMBOLS.forEach(function (s) {
       var b = document.createElement("button");
       b.type = "button"; b.className = "chip" + (s === cur.sym ? " on" : "");
       b.textContent = s.replace(".NS", "");
       b.setAttribute("aria-pressed", s === cur.sym ? "true" : "false");
+      if (s === cur.sym) { /* keep param-selected state */ }
       b.addEventListener("click", function () {
         cur.sym = s; cur.idx = DATA[s].length - 1;
         Array.prototype.forEach.call(picker.children, function (c) {
