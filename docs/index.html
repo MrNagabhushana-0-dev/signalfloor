@@ -181,6 +181,9 @@ details.payload summary{padding:var(--s2) var(--s3);color:var(--ink-faint)}
 
 /* ---------- folded secondary sections ---------- */
 .folds{margin-top:var(--s5);display:grid;gap:var(--s3)}
+.folds>*{min-width:0}
+.fold-body,.replay,.replay-msg{min-width:0;overflow-wrap:anywhere}
+.replay-nav{flex-wrap:wrap}
 details.fold{background:var(--panel);border:1px solid var(--line)}
 details.fold summary{font-size:.85rem}
 .fold-body{padding:0 var(--s4) var(--s4)}
