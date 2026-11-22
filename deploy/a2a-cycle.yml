@@ -1,0 +1,81 @@
+# SignalFloor live A2A cycle (PREPARED, NOT INSTALLED, NOT ACTIVATED).
+# Install step for the owner: move this file to .github/workflows/a2a-cycle.yml
+# and push (the hackathon push token deliberately lacks the `workflow` scope,
+# so installing an Actions workflow is an explicit owner action).
+#
+# This workflow runs the existing BAND-room agents (agents/market_analyst.py +
+# agents/trade_executor.py) for one bounded cycle on GitHub-hosted runners.
+# It is dispatch-only on purpose: no recurring schedule is armed.
+#
+# Blocked on explicit owner approval for two things, tracked outside this file:
+#   1. Storing the BAND agent API keys (agent_config.yaml) as the repo secret
+#      BAND_AGENT_CONFIG_YAML (moves private credentials into a new store).
+#   2. Arming a recurring schedule that posts authenticated messages to the
+#      live BAND room from GitHub datacenter IPs (new recurring external route).
+# Until then this fails fast with a clear message if the secret is absent.
+#
+# Portfolio state persists by committing data/paper_portfolio.json back to the
+# repo with the workflow's GITHUB_TOKEN (public repo, paper state only).
+
+name: a2a-cycle
+on:
+  workflow_dispatch:
+  # schedule:  # NOT ARMED - requires owner approval (see header)
+  #   - cron: "45 10 * * 1-5"  # 16:15 IST, weekdays, after NSE close
+
+permissions:
+  contents: write
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check agent credentials are configured
+        run: |
+          if [ -z "${{ secrets.BAND_AGENT_CONFIG_YAML }}" ]; then
+            echo "::error::BAND_AGENT_CONFIG_YAML repo secret is not set."
+            echo "Live A2A is not activated: storing the agent API keys requires explicit owner approval."
+            exit 1
+          fi
+
+      - name: Write agent config from secret
+        run: |
+          mkdir -p data
+          printf '%s' "${{ secrets.BAND_AGENT_CONFIG_YAML }}" > agent_config.yaml
+          chmod 600 agent_config.yaml
+
+      - name: Run one bounded analyst+executor cycle
+        env:
+          MAX_CYCLES: "1"
+          CYCLE_SECONDS: "20"
+          DEMO_MODE: "true"
+          PORTFOLIO_PATH: data/paper_portfolio.json
+        run: |
+          python agents/market_analyst.py &
+          ANALYST=$!
+          python agents/trade_executor.py &
+          EXECUTOR=$!
+          wait $ANALYST || true
+          kill $EXECUTOR 2>/dev/null || true
+
+      - name: Commit paper portfolio state back
+        run: |
+          if [ -f data/paper_portfolio.json ] && [ -n "$(git status --porcelain -- data/paper_portfolio.json)" ]; then
+            git config user.name "signalfloor-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add data/paper_portfolio.json
+            git commit -m "A2A cycle: paper portfolio state ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+          else
+            echo "no portfolio state change"
+          fi
