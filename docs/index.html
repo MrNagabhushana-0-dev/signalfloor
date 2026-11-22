@@ -133,9 +133,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 }
 .chip:hover{border-color:var(--accent)}
 .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
-.wb-slider-row{display:flex;align-items:center;gap:var(--s3);flex:1 1 16rem;min-width:14rem}
-.wb-slider-row input[type=range]{flex:1;accent-color:var(--accent);min-width:8rem}
-.asof-label{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);white-space:nowrap}
+.wb-slider-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);flex:1 1 16rem;min-width:12rem}
+.wb-slider-row input[type=range]{flex:1 1 6rem;accent-color:var(--accent);min-width:6rem}
+.asof-label{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);overflow-wrap:anywhere}
 .wb-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:var(--s5);align-items:start}
 .chart-box{border:1px solid var(--line);border-radius:10px;background:#fcfbfe;overflow:hidden}
 .chart-box svg{display:block;width:100%;height:auto}
