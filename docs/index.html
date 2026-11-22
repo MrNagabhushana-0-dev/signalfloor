@@ -117,6 +117,10 @@
   .addsym { display: flex; gap: 8px; margin-top: 10px; }
   .addsym input { flex: 1; font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; }
 
+  .chartwrap { margin: 14px 0 4px; }
+  .chartwrap svg { width: 100%; height: auto; display: block; }
+  .chartleg { display: flex; gap: 16px; font-size: .78rem; color: var(--muted); margin-top: 6px; }
+  .chartleg i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
   .teststats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 12px 0; }
   .teststats .stat { padding: 9px 12px; }
   .teststats .v { font-size: 1.02rem; }
@@ -211,8 +215,9 @@
     </div>
   </div>
 
-  <details id="lab">
-    <summary>Rule lab <span class="hint">tune the strategy, replay it on loaded history</span></summary>
+  <div class="card" id="lab">
+    <h2>Rule lab</h2>
+    <div class="role">Tune the strategy, replay it on loaded history - the chart redraws from the actual computation on every change. No canned scenarios.</div>
     <div class="lab">
       <div><label>RSI period</label><input id="in-rsiPeriod" type="number" min="2" max="50" step="1"></div>
       <div><label>Oversold below</label><input id="in-oversold" type="number" min="1" max="49" step="1"></div>
@@ -233,9 +238,10 @@
     <div class="lab" style="margin-top:14px">
       <div><label>Replay rules on</label><select id="in-testSymbol" style="font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;width:100%"></select></div>
     </div>
+    <div class="chartwrap" id="test-chart"></div>
     <div class="teststats" id="test-stats"></div>
     <div id="test-events"></div>
-  </details>
+  </div>
 
   <details>
     <summary>Data &amp; provenance <span class="hint">sources, freshness, honest limits</span></summary>
@@ -244,6 +250,7 @@
 
   <footer>
     <span>SignalFloor - Diwali Festiverse agent-to-agent hackathon, team 0dev.</span>
+    <a href="https://www.mr-nagabhushanaraju-s.engineer/">Built by Nagabhushana Raju S</a>
     <a href="archive/docs-2026-11-22-frozen/">Archived build (2026-11-22)</a>
     <span>Paper accounting only - not investment advice; simulated results are not evidence of real-world performance.</span>
   </footer>

@@ -372,11 +372,43 @@ $("btn-addsym").addEventListener("click", async () => {
 });
 
 // ---------- rule test ----------
+function drawTestChart(rows, r) {
+  const W = 720, H = 190, P = 34;
+  const eq = r.equity.map(e => e.v);
+  const bh = rows.map(row => row[4] / rows[0][4] * START_CASH);
+  const all = eq.concat(bh);
+  const min = Math.min(...all), max = Math.max(...all);
+  const X = i => P + i / (rows.length - 1) * (W - 2 * P);
+  const Y = v => H - P - (v - min) / ((max - min) || 1) * (H - 2 * P);
+  const path = arr => arr.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+  const idxByDate = {}; rows.forEach((row, i) => { idxByDate[row[0]] = i; });
+  const marks = r.events.filter(e => e.outcome === "filled" && idxByDate[e.filled] != null).map(e => {
+    const cx = X(idxByDate[e.filled]), cy = Y(eq[idxByDate[e.filled]]);
+    return e.side === "BUY"
+      ? `<path d="M${cx},${cy - 5} l-5,9 h10 z" fill="var(--buy)"><title>BUY filled ${e.filled} at ${inr(e.open)}</title></path>`
+      : `<path d="M${cx},${cy + 5} l-5,-9 h10 z" fill="var(--sell)"><title>SELL filled ${e.filled} at ${inr(e.open)}</title></path>`;
+  }).join("");
+  const mid = (min + max) / 2;
+  $("test-chart").innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Strategy equity vs buy and hold, computed from loaded bars">
+      <line x1="${P}" y1="${Y(max)}" x2="${W - P}" y2="${Y(max)}" stroke="var(--line)" stroke-width="1"/>
+      <line x1="${P}" y1="${Y(mid)}" x2="${W - P}" y2="${Y(mid)}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="${P}" y1="${Y(min)}" x2="${W - P}" y2="${Y(min)}" stroke="var(--line)" stroke-width="1"/>
+      <text x="2" y="${Y(max) + 4}" font-size="10" fill="var(--faint)">${inr(max)}</text>
+      <text x="2" y="${Y(min) + 4}" font-size="10" fill="var(--faint)">${inr(min)}</text>
+      <path d="${path(bh)}" fill="none" stroke="var(--faint)" stroke-width="1.6"/>
+      <path d="${path(eq)}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+      ${marks}
+    </svg>
+    <div class="chartleg"><span><i style="background:var(--accent)"></i>Your rules (paper equity)</span><span><i style="background:var(--faint)"></i>Buy &amp; hold</span><span style="color:var(--buy)">&#9650; buy fill</span><span style="color:var(--sell)">&#9660; sell fill</span></div>`;
+}
+
 function renderTest() {
   const sym = inputs.testSymbol;
-  if (!sym || !BARS[sym]) { $("test-stats").innerHTML = ""; $("test-events").innerHTML = ""; return; }
+  if (!sym || !BARS[sym]) { $("test-stats").innerHTML = ""; $("test-events").innerHTML = ""; $("test-chart").innerHTML = ""; return; }
   const rows = BARS[sym];
   const r = E.replay(rows, params(), { trendFilter: inputs.trendFilter }, START_CASH, +inputs.feePct);
+  drawTestChart(rows, r);
   const bh = (rows[rows.length - 1][4] / rows[0][4] - 1) * 100;
   const endV = r.equity[r.equity.length - 1].v;
   const ret = (endV / START_CASH - 1) * 100;
