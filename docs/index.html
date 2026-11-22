@@ -313,9 +313,8 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
         <p class="hint">Signals computed as of the selected session from recorded bars - a decision view, not a backtest of performance.</p>
         <div id="signal-out"></div>
         <div id="executor-box" hidden>
-          <p class="scenario-note">What-if scenario: each click books a simulated fill at the selected session's close on top of the
-          recorded end-of-run paper book (2026-11-19). Not a backtest; the simulated P&amp;L below is not a performance measure.
-          Reset restores the recorded book.</p>
+          <p class="scenario-note">What-if fills book at the selected session's close on top of the recorded 2026-11-19 paper book.
+          Not a backtest; simulated P&amp;L is not performance. Reset restores the recorded book.</p>
           <div class="wb-actions">
             <button type="button" class="btn" id="fill-btn"></button>
             <button type="button" class="btn ghost" id="reset-btn">Reset paper book</button>
