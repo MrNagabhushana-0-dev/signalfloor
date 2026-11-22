@@ -182,6 +182,14 @@
     var last = closes.length - 1;
     var lastPrice = closes[last];
     var html = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Price chart for ' + snap.symbol + ' up to ' + snap.asof + '" preserveAspectRatio="none">';
+    html += '<defs><linearGradient id="areagrad" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#8b7bd8" stop-opacity="0.28"/>' +
+      '<stop offset="1" stop-color="#8b7bd8" stop-opacity="0"/></linearGradient></defs>';
+    // area under the close line
+    var area = 'M' + x(0).toFixed(1) + ' ' + y(closes[0]).toFixed(1);
+    for (var ai = 1; ai < closes.length; ai++) area += 'L' + x(ai).toFixed(1) + ' ' + y(closes[ai]).toFixed(1);
+    area += 'L' + x(closes.length - 1).toFixed(1) + ' ' + (H - PB) + 'L' + x(0).toFixed(1) + ' ' + (H - PB) + 'Z';
+    html += '<path d="' + area + '" class="area"/>';
     // grid
     for (var g = 0; g <= 4; g++) {
       var gy = PT + (H - PT - PB) * (g / 4);
