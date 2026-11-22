@@ -15,7 +15,7 @@ function fromYahoo(j) {
   for (let i = 0; i < r0.timestamp.length; i++) {
     if (q.open[i] == null || q.close[i] == null) continue;
     bars.push({
-      date: new Date(r0.timestamp[i] * 1000).toISOString().slice(0, 10),
+      date: istDate(r0.timestamp[i]),
       open: q.open[i], high: q.high[i], low: q.low[i], close: q.close[i],
       volume: q.volume[i] || 0,
     });

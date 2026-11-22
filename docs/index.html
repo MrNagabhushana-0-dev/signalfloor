@@ -1,151 +1,229 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SignalFloor - your rules, your watchlist, computed now</title>
+<title>SignalFloor - paper trading console</title>
 <style>
-:root{--bg:#0a0810;--panel:#14101f;--line:#2a2340;--line-soft:#1e1830;--ink:#ece9f7;--ink-soft:#b8b0cc;--ink-faint:#9c92b4;--accent:#8b7bd8;--accent-soft:#b7a9f5;--buy:#2fd08c;--sell:#ff6b5e;--warn:#e8c268;--mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,sans-serif}
-.wrap{max-width:1120px;margin:0 auto;padding:var(--s4)}
-h1{font-size:1.55rem;letter-spacing:-.02em;margin:0}
-h1 .dot{color:var(--accent-soft)}
-.sub{color:var(--ink-soft);font-size:.9rem;margin:4px 0 0;max-width:70ch}
-header.top{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line-soft);padding-bottom:var(--s3);margin-bottom:var(--s4)}
-.badges{display:flex;gap:var(--s3);font-family:var(--mono);font-size:.72rem;color:var(--ink-faint)}
-.badges a{color:var(--accent-soft)}
-.banner{border:1px solid #4a3a1a;background:#1d1608;color:var(--warn);border-radius:10px;padding:10px var(--s3);font-size:.82rem;margin:var(--s4) 0}
-.banner strong{color:#f2d489}
-.grid{display:grid;grid-template-columns:300px 1fr;gap:var(--s4);align-items:start}
-@media(max-width:860px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:var(--s4)}
-.panel h2{font-size:.8rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 var(--s3)}
-.panel h2 .live{color:var(--buy)}
-fieldset{border:0;padding:0;margin:0 0 var(--s4)}
-legend{font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);margin-bottom:var(--s2);text-transform:uppercase;letter-spacing:.06em}
-.symlist{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.symlist label{display:flex;gap:6px;align-items:center;font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);padding:4px 6px;border:1px solid var(--line-soft);border-radius:6px;cursor:pointer}
-.symlist label.on{border-color:var(--accent);color:var(--ink)}
-.numgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
-.numgrid label{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);display:flex;flex-direction:column;gap:2px}
-.numgrid input,.numgrid select{background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:var(--mono);font-size:.85rem;padding:6px 8px;width:100%}
-.toggle{display:flex;gap:var(--s2);align-items:center;font-size:.82rem;color:var(--ink-soft);margin-top:var(--s2)}
-.savestate{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);margin-top:var(--s3)}
-.errline{font-family:var(--mono);font-size:.7rem;color:var(--sell);margin-top:var(--s2);overflow-wrap:anywhere}
-.symrow{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);align-items:center;padding:var(--s3) 0;border-bottom:1px solid var(--line-soft)}
-.symrow:last-child{border-bottom:0}
-.symrow .name{font-family:var(--mono);font-weight:700;font-size:.9rem}
-.symrow .px{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft)}
-.symrow .inds{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint)}
-.verdict{font-family:var(--mono);font-weight:700;font-size:.8rem;padding:4px 10px;border-radius:6px;text-align:center}
-.verdict.BUY{color:var(--buy);border:1px solid var(--buy)}
-.verdict.SELL{color:var(--sell);border:1px solid var(--sell)}
-.verdict.NO{color:var(--ink-faint);border:1px solid var(--line)}
-.reason{grid-column:1/-1;font-family:var(--mono);font-size:.72rem;color:var(--ink-faint)}
-.rowactions{grid-column:1/-1;display:flex;gap:var(--s2)}
-button{background:var(--accent);color:#0a0810;border:0;border-radius:8px;font-weight:700;font-size:.8rem;padding:8px 14px;cursor:pointer}
-button.ghost{background:none;border:1px solid var(--line);color:var(--ink-soft);font-weight:400}
-button:disabled{opacity:.4;cursor:default}
-.bookline{display:flex;flex-wrap:wrap;gap:var(--s4);font-family:var(--mono);font-size:.8rem}
-.bookline b{display:block;font-size:.68rem;color:var(--ink-faint);font-weight:400;text-transform:uppercase;letter-spacing:.06em}
-.bookline span{font-size:1rem;font-variant-numeric:tabular-nums}
-.order{font-family:var(--mono);font-size:.74rem;color:var(--ink-soft);padding:6px 0;border-bottom:1px solid var(--line-soft)}
-.order:last-child{border-bottom:0}
-.order .st-pending{color:var(--warn)}
-.order .st-filled{color:var(--buy)}
-details{margin-top:var(--s4)}
-details summary{cursor:pointer;font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);padding:var(--s3);border:1px solid var(--line-soft);border-radius:10px;list-style:none}
-details summary::before{content:'+ ';color:var(--accent)}
-details[open] summary::before{content:'- '}
-details .inner{padding:var(--s3) 2px;font-size:.85rem;color:var(--ink-soft)}
-details .inner li{margin:4px 0 4px 1.1em;font-size:.8rem}
-.mono{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint)}
-.ev{font-family:var(--mono);font-size:.74rem;color:var(--ink-soft);padding:6px 0;border-bottom:1px solid var(--line-soft)}
-.ev:last-child{border-bottom:0}
-.ev .B{color:var(--buy);font-weight:700}
-.ev .S{color:var(--sell);font-weight:700}
-.ev .ok{color:var(--buy)}
-.ev .no{color:var(--sell)}
-.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:var(--s2);margin-top:var(--s3)}
-.kv div{background:var(--bg);border:1px solid var(--line-soft);border-radius:10px;padding:var(--s3)}
-.kv b{display:block;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:400}
-.kv span{font-size:1rem;font-weight:650;font-variant-numeric:tabular-nums}
-footer{margin-top:var(--s5);border-top:1px solid var(--line-soft);padding-top:var(--s3);color:var(--ink-faint);font-size:.78rem}
-footer a{color:var(--accent-soft)}
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --line: #e4e7ec; --ink: #101828;
+    --muted: #667085; --faint: #98a2b3;
+    --buy: #067647; --buy-bg: #ecfdf3; --sell: #b42318; --sell-bg: #fef3f2;
+    --hold-bg: #f2f4f7; --warn: #b54708; --warn-bg: #fffaeb;
+    --accent: #175cd3;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .num { font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+  h1 { font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; }
+  .badge { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--warn-bg); color: var(--warn); border: 1px solid #fedf89;
+    border-radius: 999px; padding: 3px 10px; }
+  .sub { color: var(--muted); font-size: .85rem; width: 100%; }
+  .sub b { color: var(--ink); font-weight: 600; }
+
+  .datarow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin: 14px 0 18px; font-size: .85rem; color: var(--muted); }
+  .datarow .fresh { font-weight: 600; color: var(--ink); }
+
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink); padding: 7px 14px; }
+  button.primary { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
+  button:disabled { opacity: .55; cursor: default; }
+  button.small { padding: 4px 10px; font-size: .82rem; }
+  button.linklike { border: none; background: none; color: var(--accent); padding: 0; font-size: .82rem; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .stat .k { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .stat .v { font-size: 1.25rem; font-weight: 650; margin-top: 2px; }
+  .stat .v.up { color: var(--buy); } .stat .v.down { color: var(--sell); }
+
+  .grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: .95rem; margin: 0 0 4px; }
+  .card .role { font-size: .78rem; color: var(--faint); margin-bottom: 12px; }
+
+  table.signals { width: 100%; border-collapse: collapse; }
+  table.signals th { text-align: left; font-size: .72rem; color: var(--faint); text-transform: uppercase;
+    letter-spacing: .05em; font-weight: 600; padding: 4px 8px 8px 0; border-bottom: 1px solid var(--line); }
+  table.signals td { padding: 10px 8px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.signals tr:last-child td { border-bottom: none; }
+  .sym { font-weight: 650; }
+  .px { color: var(--muted); font-size: .82rem; }
+  .inds { color: var(--muted); font-size: .82rem; }
+  .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+    border-radius: 999px; padding: 3px 10px; }
+  .pill.BUY { background: var(--buy-bg); color: var(--buy); }
+  .pill.SELL { background: var(--sell-bg); color: var(--sell); }
+  .pill.HOLD { background: var(--hold-bg); color: var(--muted); }
+  .reason { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+
+  .ticket label { display: block; font-size: .78rem; color: var(--muted); margin: 10px 0 4px; }
+  .ticket select, .ticket input { width: 100%; font: inherit; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .seg { display: flex; gap: 6px; }
+  .seg button { flex: 1; padding: 8px 0; font-weight: 600; }
+  .seg button.on-buy { background: var(--buy-bg); border-color: var(--buy); color: var(--buy); }
+  .seg button.on-sell { background: var(--sell-bg); border-color: var(--sell); color: var(--sell); }
+  .est { font-size: .82rem; color: var(--muted); margin: 10px 0; min-height: 1.2em; }
+  .err { color: var(--sell); font-size: .82rem; margin-top: 8px; min-height: 1.2em; }
+  .okmsg { color: var(--buy); font-size: .82rem; margin-top: 8px; }
+
+  .order { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+  .order:last-child { border-bottom: none; }
+  .order .meta { color: var(--muted); font-size: .8rem; }
+  .st { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .04em;
+    border-radius: 999px; padding: 2px 8px; margin-right: 6px; }
+  .st.pending { background: var(--warn-bg); color: var(--warn); }
+  .st.filled { background: var(--buy-bg); color: var(--buy); }
+  .st.rejected { background: var(--sell-bg); color: var(--sell); }
+  .st.holding { background: #eef4ff; color: var(--accent); }
+  .empty { color: var(--faint); font-size: .85rem; padding: 8px 0; }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; }
+  details summary { cursor: pointer; font-weight: 600; font-size: .9rem; }
+  details summary .hint { font-weight: 400; color: var(--faint); font-size: .8rem; margin-left: 6px; }
+
+  .lab { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 16px; margin: 12px 0; }
+  .lab label { font-size: .78rem; color: var(--muted); display: block; margin-bottom: 3px; }
+  .lab input { width: 100%; font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; }
+  .lab .checkline { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ink); }
+  .lab .checkline input { width: auto; }
+  .symlist { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+  .symlist label { font-size: .82rem; border: 1px solid var(--line); border-radius: 999px;
+    padding: 4px 12px; cursor: pointer; color: var(--muted); }
+  .symlist label.on { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+  .symlist input { display: none; }
+  .addsym { display: flex; gap: 8px; margin-top: 10px; }
+  .addsym input { flex: 1; font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; }
+
+  .teststats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 12px 0; }
+  .teststats .stat { padding: 9px 12px; }
+  .teststats .v { font-size: 1.02rem; }
+  .ev { font-size: .84rem; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .ev:last-child { border-bottom: none; }
+  .ev .why { color: var(--muted); font-size: .78rem; }
+
+  .prov { font-size: .82rem; color: var(--muted); }
+  .prov li { margin-bottom: 6px; }
+  .errline { color: var(--sell); }
+
+  footer { margin-top: 24px; font-size: .8rem; color: var(--faint); display: flex; flex-wrap: wrap; gap: 14px; }
+  footer a { color: var(--muted); }
+
+  .refresh-status { width: 100%; font-size: .8rem; color: var(--muted); }
+  .refresh-status .errline { font-size: .8rem; }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    table.signals th:nth-child(3), table.signals td:nth-child(3) { display: none; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="top">
-  <div>
-    <h1>SignalFloor<span class="dot">.</span></h1>
-    <p class="sub">Your watchlist, your rules, computed now from delayed public daily bars. Paper fills only.</p>
+
+  <header class="top">
+    <h1>SignalFloor</h1>
+    <span class="badge">Simulation only</span>
+    <div class="sub">Paper trading console for NSE equities. Signals and order execution run the
+      <b>same rule logic as the BAND-room analyst and executor agents</b>, recomputed locally in your
+      browser from delayed daily bars. No brokerage, no real orders, no real money.</div>
+  </header>
+
+  <div class="datarow">
+    <span>Data through <b class="fresh" id="data-through">...</b> (delayed daily bars)</span>
+    <span id="refresh-state"></span>
+    <button id="btn-refresh" class="primary" type="button">Refresh data</button>
+    <div class="refresh-status" id="refresh-status"></div>
   </div>
-  <div class="badges"><span>simulation only</span><span id="hdr-fetched">source: ...</span><a href="https://github.com/MrNagabhushana-0-dev/signalfloor">source</a></div>
-</header>
 
-<div class="banner"><strong>Simulation, not a live service.</strong> Delayed public daily-bar data, computed in your browser. Paper fills only - no brokerage connection, no real orders, no investment advice.</div>
+  <div class="stats" id="bookline"></div>
 
-<div class="grid">
-  <div class="panel" id="inputs-panel">
-    <h2>Inputs <span class="live">- recompute on change</span></h2>
-    <fieldset>
-      <legend>Watchlist (fetched universe)</legend>
-      <div class="symlist" id="symlist"></div>
-      <div id="fetch-errors"></div>
-    </fieldset>
-    <fieldset>
-      <legend>Rules</legend>
-      <div class="numgrid">
-        <label>RSI period<input id="in-rsiPeriod" type="number" min="2" max="50" step="1"></label>
-        <label>SMA fast<input id="in-smaFast" type="number" min="2" max="100" step="1"></label>
-        <label>Oversold<input id="in-oversold" type="number" min="1" max="49" step="0.5"></label>
-        <label>Overbought<input id="in-overbought" type="number" min="51" max="99" step="0.5"></label>
-        <label>SMA slow<input id="in-smaSlow" type="number" min="3" max="200" step="1"></label>
-        <label>Order budget %<input id="in-budgetPct" type="number" min="1" max="100" step="1"></label>
-        <label>Fee % per side<input id="in-feePct" type="number" min="0" max="5" step="0.05"></label>
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>Signals</h2>
+        <div class="role">Analyst role - one verdict per watchlist symbol on the latest loaded bar</div>
+        <table class="signals">
+          <thead><tr><th>Symbol</th><th>Verdict</th><th class="why">Why</th><th></th></tr></thead>
+          <tbody id="scan"></tbody>
+        </table>
       </div>
-      <label class="toggle"><input id="in-trendFilter" type="checkbox"> SMA trend filter (no buys in downtrend, no sells in uptrend)</label>
-    </fieldset>
-    <div class="savestate">Inputs and paper book are saved in this browser only. No account, no sync, nothing leaves the page.</div>
-  </div>
 
-  <div>
-    <div class="panel">
-      <h2>Scan - latest loaded bar</h2>
-      <div id="scan"></div>
-    </div>
-
-    <div class="panel" style="margin-top:var(--s4)">
-      <h2>Paper book (persists across refresh)</h2>
-      <div class="bookline" id="bookline"></div>
-      <div id="orders"></div>
-      <div class="rowactions" style="margin-top:var(--s3)">
-        <button class="ghost" id="btn-reset-book" type="button">Reset paper book</button>
+      <div class="card ticket">
+        <h2>Order ticket</h2>
+        <div class="role">Manual paper order - fills at the next session's open bar after it arrives via Refresh data</div>
+        <label>Side</label>
+        <div class="seg">
+          <button type="button" id="side-buy">Buy</button>
+          <button type="button" id="side-sell">Sell</button>
+        </div>
+        <label>Symbol</label>
+        <select id="t-symbol"></select>
+        <label>Quantity (whole shares)</label>
+        <input id="t-qty" type="number" min="1" step="1" placeholder="e.g. 10" inputmode="numeric">
+        <div class="est" id="t-est"></div>
+        <button class="primary" id="t-submit" type="button">Queue paper order</button>
+        <div class="err" id="t-err"></div>
+        <div class="okmsg" id="t-ok"></div>
       </div>
     </div>
 
-    <div class="panel" style="margin-top:var(--s4)">
-      <h2>Rule test - your rules over the loaded history</h2>
-      <div class="mono" style="margin-bottom:var(--s2)">Same rule engine, every loaded bar, fills at next bar's open. Recomputed on every input change.</div>
-      <div class="numgrid" style="max-width:260px"><label>Symbol<select id="in-testSymbol"></select></label></div>
-      <div class="kv" id="test-stats"></div>
-      <div id="test-events"></div>
+    <div>
+      <div class="card">
+        <h2>Paper book</h2>
+        <div class="role">Executor role - risk checks, bookings, fills. Persisted in this browser only.</div>
+        <div id="orders"></div>
+        <div style="margin-top:10px"><button class="small" id="btn-reset-book" type="button">Reset paper book</button></div>
+      </div>
     </div>
   </div>
+
+  <details id="lab">
+    <summary>Rule lab <span class="hint">tune the strategy, replay it on loaded history</span></summary>
+    <div class="lab">
+      <div><label>RSI period</label><input id="in-rsiPeriod" type="number" min="2" max="50" step="1"></div>
+      <div><label>Oversold below</label><input id="in-oversold" type="number" min="1" max="49" step="1"></div>
+      <div><label>Overbought above</label><input id="in-overbought" type="number" min="51" max="99" step="1"></div>
+      <div><label>SMA fast</label><input id="in-smaFast" type="number" min="2" max="100" step="1"></div>
+      <div><label>SMA slow</label><input id="in-smaSlow" type="number" min="3" max="200" step="1"></div>
+      <div><label>Order budget (% of start cash)</label><input id="in-budgetPct" type="number" min="1" max="100" step="1"></div>
+      <div><label>Fee per side (%)</label><input id="in-feePct" type="number" min="0" max="5" step="0.05"></div>
+      <div class="checkline"><label class="checkline"><input id="in-trendFilter" type="checkbox"> Trend filter (no buys below SMA cross, no sells above)</label></div>
+    </div>
+    <label style="font-size:.78rem;color:var(--muted)">Watchlist</label>
+    <div class="symlist" id="symlist"></div>
+    <div class="addsym">
+      <input id="in-addsym" type="text" placeholder="Add NSE symbol, e.g. HDFCBANK" maxlength="18">
+      <button id="btn-addsym" type="button">Fetch &amp; add</button>
+    </div>
+    <div class="err" id="addsym-err"></div>
+    <div class="lab" style="margin-top:14px">
+      <div><label>Replay rules on</label><select id="in-testSymbol" style="font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;width:100%"></select></div>
+    </div>
+    <div class="teststats" id="test-stats"></div>
+    <div id="test-events"></div>
+  </details>
+
+  <details>
+    <summary>Data &amp; provenance <span class="hint">sources, freshness, honest limits</span></summary>
+    <div class="prov" id="provenance"></div>
+  </details>
+
+  <footer>
+    <span>SignalFloor - Diwali Festiverse agent-to-agent hackathon, team 0dev.</span>
+    <a href="archive/docs-2026-11-22-frozen/">Archived build (2026-11-22)</a>
+    <span>Paper accounting only - not investment advice; simulated results are not evidence of real-world performance.</span>
+  </footer>
 </div>
 
-<details>
-  <summary>Provenance and limits</summary>
-  <div class="inner" id="provenance"></div>
-</details>
-
-<footer>
-  Built by team 0dev for the Diwali Festiverse Agent-to-Agent Hackathon (India Edition). More of this builder's work: <a href="https://www.mr-nagabhushanaraju-s.engineer/">mr-nagabhushanaraju-s.engineer</a><br>
-  Simulation only - no real trades, no investment advice. This page makes no live calls and collects nothing. Archived frozen build (recorded replay + audited research scenario): <a href="https://github.com/MrNagabhushana-0-dev/signalfloor/tree/main/archive/docs-2026-11-22-frozen">archive</a>.
-</footer>
-</div>
 <script src="bars.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
