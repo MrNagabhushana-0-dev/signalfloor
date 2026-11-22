@@ -14,7 +14,7 @@
   --line-soft:#221b36;
   --ink:#ece9f7;
   --ink-soft:#b3aacb;
-  --ink-faint:#7e7499;
+  --ink-faint:#8f85a8;
   --accent:#8b7bd8;
   --accent-soft:#a394d6;
   --buy:#2fd08c;
@@ -32,67 +32,89 @@ body{
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   margin:0;background:var(--bg);color:var(--ink);
   line-height:1.55;font-size:1rem;
-  background-image:radial-gradient(60rem 30rem at 70% -10%, rgba(139,123,216,.14), transparent 60%);
+  background-image:radial-gradient(60rem 30rem at 70% -10%, rgba(139,123,216,.13), transparent 60%);
 }
 .wrap{max-width:76rem;margin:0 auto;padding:0 var(--s5)}
 a{color:var(--accent-soft);text-underline-offset:.18em}
 a:hover{color:#c3b8ec}
-a:focus-visible,button:focus-visible,input:focus-visible{
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{
   outline:3px solid var(--accent);outline-offset:2px;border-radius:2px;
 }
 ::selection{background:var(--accent);color:#fff}
 
-/* ---------- header ---------- */
-header.hero{padding:var(--s6) 0 var(--s5)}
-.eyebrow{
-  font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--accent-soft);margin:0 0 var(--s4);
+/* ---------- slim product topbar ---------- */
+header.topbar{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2) var(--s5);
+  padding:var(--s4) 0 var(--s3);border-bottom:1px solid var(--line-soft);
 }
-h1{
-  font-size:clamp(3rem,8vw,5.5rem);line-height:.98;margin:0 0 var(--s4);
-  letter-spacing:-.04em;font-weight:800;
-}
-h1 .dot{color:var(--accent)}
-.lede{font-size:clamp(1.05rem,2vw,1.3rem);color:var(--ink-soft);max-width:46rem;margin:0 0 var(--s5)}
+.brand{font-size:1.5rem;font-weight:800;letter-spacing:-.03em}
+.brand .dot{color:var(--accent)}
+.tagline{color:var(--ink-soft);font-size:.92rem;margin:0}
 .meta-row{
-  display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);
-  font-family:var(--mono);font-size:.78rem;color:var(--ink-faint);
+  display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);margin-left:auto;
+  font-family:var(--mono);font-size:.8rem;color:var(--ink-soft);
 }
-.meta-row b{color:var(--ink-soft);font-weight:600}
+.meta-row b{color:var(--ink);font-weight:600}
 
 /* ---------- console (the product) ---------- */
 .console{
+  margin-top:var(--s4);
   position:relative;background:linear-gradient(180deg,var(--panel),var(--panel-2));
   border:1px solid var(--line);border-radius:18px;padding:var(--s5);
-  box-shadow:0 30px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(139,123,216,.06) inset;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.7);
 }
-.console::before{
-  content:"";position:absolute;inset:-1px;border-radius:18px;pointer-events:none;
-  background:linear-gradient(120deg,rgba(139,123,216,.25),transparent 30%,transparent 70%,rgba(47,208,140,.12));
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;
-}
-.console-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s3) var(--s5);margin-bottom:var(--s4)}
-.console-head h2{font-size:1.15rem;margin:0;letter-spacing:-.01em}
-.console-head .section-note{margin:0;font-size:.82rem;color:var(--ink-faint);max-width:44rem}
-h2{font-size:1.35rem;letter-spacing:-.015em;margin:0 0 var(--s2)}
-section{padding:var(--s6) 0 0}
-.section-note{color:var(--ink-faint);font-size:.85rem;margin:0 0 var(--s4);max-width:46rem}
-h3{font-size:1rem;margin:var(--s5) 0 var(--s2);color:var(--ink-soft)}
+.console-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:var(--s5);align-items:start}
+.col-main{display:flex;flex-direction:column;gap:var(--s4)}
 
-.wb-controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-bottom:var(--s5)}
+.wb-controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
 .chip{
-  font-family:var(--mono);font-size:.82rem;padding:.45rem .9rem;border-radius:999px;
+  font-family:var(--mono);font-size:.85rem;padding:.45rem .95rem;border-radius:999px;
   border:1px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer;
   transition:background .18s ease,color .18s ease,border-color .18s ease;
 }
 .chip:hover{border-color:var(--accent);color:var(--ink)}
 .chip.on{background:var(--accent);border-color:var(--accent);color:#0c0a13;font-weight:700}
-.wb-slider-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);flex:1 1 16rem;min-width:12rem}
+.wb-slider-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);flex:1 1 15rem;min-width:12rem}
 .wb-slider-row input[type=range]{flex:1 1 6rem;accent-color:var(--accent);min-width:6rem}
-.asof-label{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);overflow-wrap:anywhere}
+.asof-label{font-family:var(--mono);font-size:.88rem;color:var(--ink);font-weight:650;overflow-wrap:anywhere}
+.asof-label small{color:var(--ink-faint);font-weight:400}
 
-.wb-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:var(--s5);align-items:start}
+/* the verdict: the product's recognisable idea */
+.sig{
+  border-radius:12px;padding:var(--s4) var(--s5);
+  transition:background .2s ease,border-color .2s ease;margin:0;
+}
+.sig .sig-side{
+  display:block;font-weight:800;letter-spacing:-.02em;font-size:clamp(2rem,5vw,3rem);
+  line-height:1.02;animation:verdict .22s ease;
+}
+@keyframes verdict{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sig code{
+  display:block;font-family:var(--mono);font-size:.76rem;line-height:1.5;white-space:pre-wrap;
+  word-break:break-word;color:var(--ink-soft);margin-top:var(--s2);
+}
+.sig-buy{background:linear-gradient(135deg,rgba(47,208,140,.16),rgba(47,208,140,.04));border:1px solid rgba(47,208,140,.45);color:var(--buy)}
+.sig-sell{background:linear-gradient(135deg,rgba(255,107,94,.14),rgba(255,107,94,.04));border:1px solid rgba(255,107,94,.45);color:var(--sell)}
+.sig-flat{background:var(--flat-dim);border:1px solid var(--line);color:var(--ink-soft)}
+.sig-flat .sig-side{color:var(--ink-faint)}
+
+.btn{
+  font-family:inherit;font-size:.9rem;font-weight:650;padding:.6rem 1.05rem;border-radius:8px;
+  border:1px solid var(--accent);background:var(--accent);color:#0c0a13;cursor:pointer;
+  transition:background .18s ease,transform .18s ease;
+}
+.btn:hover{background:var(--accent-soft);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--accent-soft)}
+.btn.ghost:hover{background:rgba(139,123,216,.12)}
+.wb-actions{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center}
+.fill-ok,.fill-fail{font-family:var(--mono);font-size:.8rem;padding:var(--s3);border-radius:8px}
+.fill-ok{background:var(--buy-dim);border:1px solid rgba(47,208,140,.4);color:var(--buy)}
+.fill-fail{background:rgba(67,33,29,.5);border:1px solid rgba(255,107,94,.35);color:var(--sell)}
+.portfolio-line{
+  font-family:var(--mono);font-size:.76rem;background:#0a0810;color:var(--ink-soft);
+  border:1px solid var(--line-soft);border-radius:8px;padding:var(--s3) var(--s4);word-break:break-word;margin:0;
+}
+
 .chart-box{
   border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;
   background:
@@ -109,71 +131,60 @@ h3{font-size:1rem;margin:var(--s5) 0 var(--s2);color:var(--ink-soft)}
 .chart-box .line-s30{fill:none;stroke:#ff6b5e;stroke-width:1.5;stroke-dasharray:2 3}
 .chart-box .dot{fill:#fff;stroke:var(--accent);stroke-width:2;filter:drop-shadow(0 0 4px rgba(163,148,214,.9))}
 .chart-box .ptext{font-family:var(--mono);font-size:10px;fill:#a394d6;font-weight:700}
-.chart-legend{display:flex;flex-wrap:wrap;gap:var(--s4);font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);padding:var(--s2) var(--s1)}
+.chart-legend{display:flex;flex-wrap:wrap;gap:var(--s4);font-family:var(--mono);font-size:.74rem;color:var(--ink-soft)}
 .chart-legend i{display:inline-block;width:1.2rem;height:0;border-top:2px solid;margin-right:.3rem;vertical-align:middle}
 
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-bottom:var(--s4)}
-.metric{background:#100d1a;border:1px solid var(--line-soft);border-radius:8px;padding:var(--s2) var(--s3)}
+/* metric strip: inline, compact */
+.metrics{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.metric{background:#100d1a;border:1px solid var(--line-soft);border-radius:8px;padding:var(--s2) var(--s3);flex:1 1 8rem}
 .metric .m-k{display:block;font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
-.metric .m-v{font-size:1.02rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
-.rules{list-style:none;margin:0 0 var(--s4);padding:0;display:grid;gap:.3rem}
+.metric .m-v{font-size:.95rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+
+/* collapsible detail layers */
+details.why,details.payload,details.prov,details.fold{border:1px solid var(--line-soft);border-radius:10px;background:#100d1a}
+details.why summary,details.payload summary,details.prov summary,details.fold summary{
+  cursor:pointer;list-style:none;padding:var(--s3) var(--s4);
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);
+}
+details.why summary::before,details.payload summary::before,details.prov summary::before,details.fold summary::before{
+  content:"+";display:inline-block;width:1.1em;color:var(--accent-soft);font-weight:700;transition:transform .18s ease;
+}
+details[open]>summary::before{content:"\2212"}
+details summary:hover{color:var(--ink)}
+details.why .rules{padding:0 var(--s4) var(--s4)}
+details.payload code{padding:0 var(--s3) var(--s3)}
+details.prov .wb-src{padding:0 var(--s4) var(--s4);margin:0;border:0}
+.rules{list-style:none;margin:0;padding:0;display:grid;gap:.3rem}
 .rule{font-size:.8rem;padding:.35rem .6rem;border-radius:6px;border:1px solid var(--line-soft);transition:border-color .18s ease,background .18s ease}
 .rule .rule-mark{font-family:var(--mono);font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-right:.3rem}
 .rule.pass{border-color:rgba(47,208,140,.4);background:var(--buy-dim);color:var(--buy)}
 .rule.fail{border-color:rgba(255,107,94,.3);background:rgba(67,33,29,.5);color:#c9928a}
 .rule.na{background:transparent;color:var(--ink-faint)}
+details.payload{margin-top:var(--s2);background:rgba(0,0,0,.3);border-color:transparent}
+details.payload summary{padding:var(--s2) var(--s3);color:var(--ink-faint)}
 
-/* the verdict: the product's recognisable idea */
-.sig{
-  border-radius:12px;padding:var(--s4) var(--s5);margin-bottom:var(--s4);
-  transition:background .2s ease,border-color .2s ease;
-}
-.sig .sig-side{
-  display:block;font-weight:800;letter-spacing:-.02em;font-size:clamp(1.8rem,4vw,2.6rem);
-  line-height:1.05;margin-bottom:var(--s2);animation:verdict .22s ease;
-}
-@keyframes verdict{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.sig code{
-  display:block;font-family:var(--mono);font-size:.74rem;line-height:1.5;white-space:pre-wrap;
-  word-break:break-word;background:rgba(0,0,0,.35);border-radius:6px;padding:var(--s2) var(--s3);
-  color:var(--ink-soft);
-}
-.sig-buy{background:linear-gradient(135deg,rgba(47,208,140,.14),rgba(47,208,140,.04));border:1px solid rgba(47,208,140,.45);color:var(--buy)}
-.sig-sell{background:linear-gradient(135deg,rgba(255,107,94,.14),rgba(255,107,94,.04));border:1px solid rgba(255,107,94,.45);color:var(--sell)}
-.sig-flat{background:var(--flat-dim);border:1px solid var(--line);color:var(--ink-soft)}
-.sig-flat .sig-side{color:var(--ink-faint)}
-
-.btn{
-  font-family:inherit;font-size:.88rem;font-weight:650;padding:.55rem 1rem;border-radius:8px;
-  border:1px solid var(--accent);background:var(--accent);color:#0c0a13;cursor:pointer;
-  transition:background .18s ease,transform .18s ease;
-}
-.btn:hover{background:var(--accent-soft);transform:translateY(-1px)}
-.btn.ghost{background:transparent;color:var(--accent-soft)}
-.btn.ghost:hover{background:rgba(139,123,216,.12)}
-.wb-actions{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-bottom:var(--s3)}
-.fill-ok,.fill-fail{font-family:var(--mono);font-size:.78rem;padding:var(--s3);border-radius:8px;margin-bottom:var(--s3)}
-.fill-ok{background:var(--buy-dim);border:1px solid rgba(47,208,140,.4);color:var(--buy)}
-.fill-fail{background:rgba(67,33,29,.5);border:1px solid rgba(255,107,94,.35);color:var(--sell)}
-.portfolio-line{
-  font-family:var(--mono);font-size:.76rem;background:#0a0810;color:var(--ink-soft);
-  border:1px solid var(--line-soft);border-radius:8px;padding:var(--s3) var(--s4);margin:var(--s3) 0 var(--s4);word-break:break-word;
-}
-.scan-result{margin-top:var(--s4);overflow-x:auto}
+.scan-result{overflow-x:auto;margin-top:var(--s4)}
 .scan-table{min-width:36rem}
 .scan-table tr.picked td{background:var(--buy-dim);color:var(--buy)}
-.scan-verdict{font-size:.9rem;margin:var(--s3) 0 0;color:var(--ink-soft)}
+.scan-verdict{font-size:.92rem;margin:var(--s3) 0 0;color:var(--ink-soft)}
 .scan-verdict strong{color:var(--ink)}
-.scan-verdict code{font-family:var(--mono);font-size:.74rem;word-break:break-word;color:var(--ink-faint)}
-.wb-src{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);margin-top:var(--s5);border-top:1px solid var(--line-soft);padding-top:var(--s3)}
+.scan-verdict code{font-family:var(--mono);font-size:.76rem;word-break:break-word;color:var(--ink-faint)}
+.wb-src{font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);line-height:1.6}
 
 /* ---------- disclosure ---------- */
 .disclosure{
-  margin:var(--s6) 0 0;background:rgba(232,201,106,.07);border:1px solid rgba(232,201,106,.35);
-  border-left-width:4px;border-radius:8px;padding:var(--s4) var(--s5);color:#e3d5a8;
-  font-size:.9rem;
+  margin:var(--s5) 0 0;background:rgba(232,201,106,.07);border:1px solid rgba(232,201,106,.35);
+  border-left-width:4px;border-radius:8px;padding:var(--s3) var(--s4);color:#e3d5a8;
+  font-size:.88rem;
 }
 .disclosure b{color:var(--warn)}
+
+/* ---------- folded secondary sections ---------- */
+.folds{margin-top:var(--s5);display:grid;gap:var(--s3)}
+details.fold{background:var(--panel);border:1px solid var(--line)}
+details.fold summary{font-size:.85rem}
+.fold-body{padding:0 var(--s4) var(--s4)}
+.fold-body .section-note{margin-bottom:var(--s3)}
 
 /* ---------- tables ---------- */
 .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
@@ -202,13 +213,13 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 /* ---------- stats ---------- */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:var(--s3);margin:var(--s4) 0}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:var(--s4) var(--s5)}
+.stat{background:#100d1a;border:1px solid var(--line);border-radius:10px;padding:var(--s4) var(--s5)}
 .stat .k{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:var(--s1)}
 .stat .v{font-size:1.45rem;font-weight:750;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--ink)}
 .stat .u{font-size:.78rem;color:var(--ink-faint)}
 
 /* ---------- replay (terminal transcript) ---------- */
-.replay{border:1px solid var(--line);border-radius:12px;background:#0a0810;padding:var(--s5)}
+.replay{border:1px solid var(--line);border-radius:12px;background:#0a0810;padding:var(--s4)}
 .replay-step{display:grid;grid-template-columns:auto 1fr;gap:var(--s4);padding:var(--s4) 0;animation:verdict .22s ease}
 .replay-step+.replay-step{border-top:1px solid var(--line-soft)}
 .replay-time{font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);white-space:nowrap;padding-top:.2rem;min-width:7.5rem}
@@ -220,10 +231,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .replay-nav{display:flex;gap:var(--s3);margin-top:var(--s4)}
 
 /* ---------- flow ---------- */
-.flow{margin-top:var(--s6);background:#0a0810;border:1px solid var(--line);border-radius:14px;padding:var(--s6) var(--s5)}
-.flow h2{color:var(--ink)}
-.flow .section-note{color:var(--ink-faint)}
-.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4);margin-top:var(--s5)}
+.flow{background:#0a0810;border:1px solid var(--line);border-radius:12px;padding:var(--s5)}
+.flow .section-note{color:var(--ink-faint);font-size:.85rem}
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4);margin-top:var(--s4)}
 .stage{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:var(--s4)}
 .stage .n{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;color:var(--accent-soft);text-transform:uppercase;margin-bottom:var(--s2)}
 .stage .t{color:var(--ink);font-weight:650;margin-bottom:var(--s1);font-size:.98rem}
@@ -236,25 +246,25 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 }
 @keyframes flowdash{to{background-position:8px 0}}
 .flow-legend{margin-top:var(--s4);font-size:.78rem;color:var(--ink-faint);font-family:var(--mono)}
+h2{font-size:1.15rem;letter-spacing:-.01em;margin:0 0 var(--s2)}
 
 /* ---------- footer ---------- */
-footer{padding:var(--s6) 0 var(--s7);color:var(--ink-faint);font-size:.85rem}
-footer .rule{border-top:1px solid var(--line);margin-bottom:var(--s5);padding:0}
+footer{padding:var(--s5) 0 var(--s6);color:var(--ink-soft);font-size:.85rem}
+footer .rule{border-top:1px solid var(--line);margin-bottom:var(--s4);padding:0}
 footer p{max-width:52rem;margin:0 0 var(--s3)}
 
 @media (max-width:860px){
   .stages{grid-template-columns:repeat(2,1fr)}
   .stage:nth-child(2)::after{display:none}
-  .wb-grid{grid-template-columns:1fr}
+  .console-grid{grid-template-columns:1fr}
 }
 @media (max-width:560px){
   .wrap{padding:0 var(--s4)}
-  header.hero{padding:var(--s5) 0 var(--s4)}
   .stages{grid-template-columns:1fr}
   .stage::after{display:none!important}
   th,td{padding:var(--s2) var(--s3);font-size:.84rem}
-  .console,.replay{padding:var(--s4)}
-  .metrics{grid-template-columns:1fr 1fr}
+  .console,.replay,.flow{padding:var(--s4)}
+  .metric{flex:1 1 44%}
   .replay-step{grid-template-columns:1fr;gap:var(--s1)}
   .replay-time{min-width:0}
 }
@@ -267,216 +277,220 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
 <body>
 <div class="wrap">
 
-<header class="hero">
-  <p class="eyebrow">Team 0dev &middot; Diwali Festiverse A2A Hackathon &middot; India</p>
-  <h1>SignalFloor<span class="dot">.</span></h1>
-  <p class="lede">Two agents, one BAND room: a Market Analyst posts signals, a Trade Executor
-  risk-checks them and books simulated fills on a paper portfolio for Indian equities.
-  The console below is the agents' own decision logic, live in your browser.</p>
+<header class="topbar">
+  <span class="brand">SignalFloor<span class="dot">.</span></span>
+  <p class="tagline">Two agents, one BAND room - signals in, risk-checked paper fills out.</p>
   <div class="meta-row">
-    <span>Mode <b>simulation only</b></span>
-    <span>Data <b>recorded delayed public daily bars</b></span>
-    <span>Logic <b>agents/signals.py + Finch skill, ported exactly</b></span>
-    <span>Source <b><a href="https://github.com/MrNagabhushana-0-dev/signalfloor">github.com/MrNagabhushana-0-dev/signalfloor</a></b></span>
+    <span><b>simulation only</b></span>
+    <span><b>recorded public data</b></span>
+    <span><a href="https://github.com/MrNagabhushana-0-dev/signalfloor">source</a></span>
   </div>
 </header>
 
-<section aria-labelledby="h-workbench" style="padding-top:0">
+<main>
+<section aria-label="Signal workbench" style="padding-top:0">
   <div class="console">
-    <div class="console-head">
-      <h2 id="h-workbench">Signal workbench</h2>
-      <p class="section-note">Pick a symbol, scrub to a trading session, watch the verdict flip.
-      The same rules the agent runs decide the outcome. No network calls; nothing leaves your browser.</p>
-    </div>
-    <div class="wb-controls">
-      <div id="sym-picker" role="group" aria-label="Symbol"></div>
-      <div class="wb-slider-row">
-        <label for="slider" class="asof-label">as of</label>
-        <input type="range" id="slider" min="44" value="126" step="1" aria-label="As-of trading session">
-        <span id="asof-label" class="asof-label"></span>
-      </div>
-      <button type="button" class="btn ghost" id="scan-btn">Run watchlist scan</button>
-    </div>
-    <div class="wb-grid">
-      <div>
-        <div class="chart-box" id="chart"></div>
-        <div class="chart-legend">
-          <span><i style="border-color:#ece9f7"></i>close</span>
-          <span><i style="border-color:#8b7bd8;border-top-style:dashed"></i>SMA10</span>
-          <span><i style="border-color:#ff6b5e;border-top-style:dotted"></i>SMA30</span>
+    <div class="console-grid">
+      <div class="col-main">
+        <div class="wb-controls">
+          <div id="sym-picker" role="group" aria-label="Symbol"></div>
+          <div class="wb-slider-row">
+            <label for="slider" class="asof-label">as of</label>
+            <input type="range" id="slider" min="44" value="126" step="1" aria-label="As-of trading session">
+            <span id="asof-label" class="asof-label"></span>
+          </div>
         </div>
+        <div id="signal-out"></div>
+        <div id="executor-box" hidden>
+          <div class="wb-actions">
+            <button type="button" class="btn" id="fill-btn"></button>
+            <button type="button" class="btn ghost" id="reset-btn">Reset paper book</button>
+          </div>
+          <div id="fill-result"></div>
+          <p class="portfolio-line" id="portfolio-line" aria-live="polite"></p>
+        </div>
+        <div>
+          <div class="chart-box" id="chart"></div>
+          <div class="chart-legend">
+            <span><i style="border-color:#ece9f7"></i>close</span>
+            <span><i style="border-color:#8b7bd8;border-top-style:dashed"></i>SMA10</span>
+            <span><i style="border-color:#ff6b5e;border-top-style:dotted"></i>SMA30</span>
+            <button type="button" class="btn ghost" id="scan-btn" style="margin-left:auto">Run watchlist scan</button>
+          </div>
+        </div>
+        <div id="scan-result" class="scan-result"></div>
       </div>
-      <div>
+      <aside class="col-side" aria-label="Indicators and rules">
         <div class="metrics" id="metrics"></div>
-        <ul class="rules" id="rules"></ul>
-      </div>
+        <details class="why">
+          <summary>Why this verdict, rule by rule</summary>
+          <ul class="rules" id="rules"></ul>
+        </details>
+        <details class="prov" style="margin-top:var(--s3)">
+          <summary>Data provenance</summary>
+          <p class="wb-src">Dataset: 127 recorded daily bars per symbol (NSE, via Yahoo Finance public chart endpoint - the same
+          source family the agents used through yfinance), captured 2026-11-22. Last bar 2026-11-20. Delayed public data,
+          not a live feed. Indicator constructions match agents/signals.py and the vendored Finch skill (Apache-2.0) exactly;
+          the Finch zone decision uses the last closed bar, as the agents do. The console runs entirely in your browser -
+          no network calls, nothing leaves it.</p>
+        </details>
+      </aside>
     </div>
-    <div id="signal-out"></div>
-    <div id="executor-box" hidden>
-      <div class="wb-actions">
-        <button type="button" class="btn" id="fill-btn"></button>
-        <button type="button" class="btn ghost" id="reset-btn">Reset paper book</button>
-      </div>
-      <div id="fill-result"></div>
-      <div class="portfolio-line" id="portfolio-line" aria-live="polite"></div>
-    </div>
-    <div id="scan-result" class="scan-result"></div>
-    <p class="wb-src">Dataset: 127 recorded daily bars per symbol (NSE, via Yahoo Finance public chart endpoint - the same
-    source family the agents used through yfinance), captured 2026-11-22. Last bar 2026-11-20. Delayed public data,
-    not a live feed. Indicator constructions match agents/signals.py and the vendored Finch skill (Apache-2.0) exactly;
-    the Finch zone decision uses the last closed bar, as the agents do.</p>
   </div>
 </section>
 
 <div class="disclosure" role="note">
-  <b>Simulation, not a live service.</b> Recorded runs and delayed public daily-bar data. All trades are paper
-  fills in a simulated portfolio. No brokerage connection, no real orders, no investment advice. Simulated
-  results are not evidence of real-world performance.
+  <b>Simulation, not a live service.</b> Recorded runs and delayed public daily-bar data. Paper fills only -
+  no brokerage connection, no real orders, no investment advice.
 </div>
 
-<section aria-labelledby="h-replay">
-  <h2 id="h-replay">Recorded run replay</h2>
-  <p class="section-note">The actual BAND room conversation from 2026-11-19, step by step: the v1 fill, the risk-check
-  rejections, the v2 verified no-trade cycle. Messages are verbatim excerpts from the agents' logs (their own logs
-  truncate inbound text at 120 characters - marked where that happens). Final book from data/paper_portfolio.json.</p>
-  <div class="replay">
-    <div class="replay-step">
-      <div class="replay-time">15:26 IST</div>
-      <div>
-        <div class="replay-agent analyst">Market Analyst &rarr; room</div>
-        <div class="replay-msg">SIGNAL TCS.NS BUY price=2347.5 asof=2026-11-19 sma10=2432.54 sma30=2401.05 rsi14=28.4 change1d=-1.55% <span class="trunc">[reason truncated in agent log]</span></div>
+<div class="folds">
+<details class="fold" open>
+  <summary>Recorded run replay - the real 2026-11-19 room conversation</summary>
+  <div class="fold-body">
+    <p class="section-note">Step through what the agents actually said: the v1 fill, the risk-check rejections,
+    the v2 verified no-trade cycle. Verbatim log excerpts (agent logs truncate inbound text at 120 characters - marked
+    where that happens). Final book from data/paper_portfolio.json.</p>
+    <div class="replay">
+      <div class="replay-step">
+        <div class="replay-time">15:26 IST</div>
+        <div>
+          <div class="replay-agent analyst">Market Analyst &rarr; room</div>
+          <div class="replay-msg">SIGNAL TCS.NS BUY price=2347.5 asof=2026-11-19 sma10=2432.54 sma30=2401.05 rsi14=28.4 change1d=-1.55% <span class="trunc">[reason truncated in agent log]</span></div>
+        </div>
       </div>
-    </div>
-    <div class="replay-step" hidden>
-      <div class="replay-time">15:26 IST</div>
-      <div>
-        <div class="replay-agent executor">Trade Executor &rarr; room</div>
-        <div class="replay-msg">SIM BUY 106 TCS.NS @ 2347.5 (avg 2347.5). PAPER PORTFOLIO cash 751165.00 | inves<span class="trunc">[truncated in agent log]</span></div>
+      <div class="replay-step" hidden>
+        <div class="replay-time">15:26 IST</div>
+        <div>
+          <div class="replay-agent executor">Trade Executor &rarr; room</div>
+          <div class="replay-msg">SIM BUY 106 TCS.NS @ 2347.5 (avg 2347.5). PAPER PORTFOLIO cash 751165.00 | inves<span class="trunc">[truncated in agent log]</span></div>
+        </div>
       </div>
-    </div>
-    <div class="replay-step" hidden>
-      <div class="replay-time">15:26-17:40 IST</div>
-      <div>
-        <div class="replay-agent executor">Trade Executor, 4 rejections</div>
-        <div class="replay-msg">risk check failed: no open RELIANCE.NS position to sell (no shorting). PAPER POR<span class="trunc">[truncated; pre-v2 strategy kept signalling a short the risk layer correctly refused]</span></div>
+      <div class="replay-step" hidden>
+        <div class="replay-time">15:26-17:40 IST</div>
+        <div>
+          <div class="replay-agent executor">Trade Executor, 4 rejections</div>
+          <div class="replay-msg">risk check failed: no open RELIANCE.NS position to sell (no shorting). PAPER POR<span class="trunc">[truncated; pre-v2 strategy kept signalling a short the risk layer correctly refused]</span></div>
+        </div>
       </div>
-    </div>
-    <div class="replay-step" hidden>
-      <div class="replay-time">17:40 IST</div>
-      <div>
-        <div class="replay-agent analyst">Market Analyst &rarr; room</div>
-        <div class="replay-msg">SIGNAL TCS.NS BUY price=2342.7 asof=2026-11-19 sma10=2432.54 sma30=2401.05 rsi14=28.4 change1d=-1.55% reason="rsi 28.4 o<span class="trunc">[truncated in agent log]</span></div>
+      <div class="replay-step" hidden>
+        <div class="replay-time">17:40 IST</div>
+        <div>
+          <div class="replay-agent analyst">Market Analyst &rarr; room</div>
+          <div class="replay-msg">SIGNAL TCS.NS BUY price=2342.7 asof=2026-11-19 sma10=2432.54 sma30=2401.05 rsi14=28.4 change1d=-1.55% reason="rsi 28.4 o<span class="trunc">[truncated in agent log]</span></div>
+        </div>
       </div>
-    </div>
-    <div class="replay-step" hidden>
-      <div class="replay-time">17:40 IST</div>
-      <div>
-        <div class="replay-agent executor">Trade Executor &rarr; room</div>
-        <div class="replay-msg">SIM BUY 106 TCS.NS @ 2342.7 (avg 2345.1). PAPER PORTFOLIO cash 502838.80 | inves<span class="trunc">[truncated in agent log]</span></div>
+      <div class="replay-step" hidden>
+        <div class="replay-time">17:40 IST</div>
+        <div>
+          <div class="replay-agent executor">Trade Executor &rarr; room</div>
+          <div class="replay-msg">SIM BUY 106 TCS.NS @ 2342.7 (avg 2345.1). PAPER PORTFOLIO cash 502838.80 | inves<span class="trunc">[truncated in agent log]</span></div>
+        </div>
       </div>
-    </div>
-    <div class="replay-step" hidden>
-      <div class="replay-time">20:40 IST</div>
-      <div>
-        <div class="replay-agent analyst">Market Analyst, v2 verified cycle &rarr; room</div>
-        <div class="replay-msg">STATUS NO-TRADE cycle (strategy v2, Finch RSI zone-transition, delayed public data): TCS.NS: no zone transition (50.7 -&gt;<span class="trunc">[truncated in agent log]</span></div>
+      <div class="replay-step" hidden>
+        <div class="replay-time">20:40 IST</div>
+        <div>
+          <div class="replay-agent analyst">Market Analyst, v2 verified cycle &rarr; room</div>
+          <div class="replay-msg">STATUS NO-TRADE cycle (strategy v2, Finch RSI zone-transition, delayed public data): TCS.NS: no zone transition (50.7 -&gt;<span class="trunc">[truncated in agent log]</span></div>
+        </div>
       </div>
-    </div>
-    <div class="replay-step" hidden>
-      <div class="replay-time">end of day</div>
-      <div>
-        <div class="replay-agent executor">Final simulated book (data/paper_portfolio.json)</div>
-        <div class="replay-msg">PAPER PORTFOLIO cash 502838.80 | invested 496652.40 | total 999491.20 | P&amp;L -508.80 (-0.05%) | 2 trades | TCS.NS: 212 @ avg 2345.1</div>
+      <div class="replay-step" hidden>
+        <div class="replay-time">end of day</div>
+        <div>
+          <div class="replay-agent executor">Final simulated book (data/paper_portfolio.json)</div>
+          <div class="replay-msg">PAPER PORTFOLIO cash 502838.80 | invested 496652.40 | total 999491.20 | P&amp;L -508.80 (-0.05%) | 2 trades | TCS.NS: 212 @ avg 2345.1</div>
+        </div>
       </div>
-    </div>
-    <div class="replay-nav">
-      <button type="button" class="btn ghost replay-step-btn" data-dir="next">Next message</button>
-      <button type="button" class="btn ghost replay-step-btn" data-dir="prev">Back</button>
-      <button type="button" class="btn ghost replay-step-btn" data-dir="all">Show all</button>
+      <div class="replay-nav">
+        <button type="button" class="btn ghost replay-step-btn" data-dir="next">Next message</button>
+        <button type="button" class="btn ghost replay-step-btn" data-dir="prev">Back</button>
+        <button type="button" class="btn ghost replay-step-btn" data-dir="all">Show all</button>
+      </div>
     </div>
   </div>
-</section>
+</details>
 
-<section aria-labelledby="h-signals">
-  <h2 id="h-signals">Latest indicator snapshot</h2>
-  <p class="section-note">What the Analyst agent saw on the last recorded cycle. A <span class="pill none">none</span>
-  signal means the rules found no entry - a no-trade cycle is a valid outcome, not a missing feature.</p>
-  <div class="table-scroll">
-  <table>
-    <caption>NSE watchlist &middot; recorded cycle</caption>
-    <thead>
-      <tr><th scope="col">Symbol</th><th scope="col" class="num">Close</th><th scope="col" class="num">SMA10</th>
-      <th scope="col" class="num">SMA30</th><th scope="col" class="num">RSI14 (simple)</th>
-      <th scope="col">Finch RSI zone-transition (Wilder, prev&rarr;now)</th><th scope="col">Signal</th>
-      <th scope="col">Data as of (bar date)</th></tr>
-    </thead>
-    <tbody>
-      <tr><td class="sym">RELIANCE.NS</td><td class="num">1375.6</td><td class="num">1342.3</td><td class="num">1249.94</td><td class="num">97.1</td><td class="zone">flat 74.7&rarr;73.1</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
-      <tr><td class="sym">TCS.NS</td><td class="num">2342.7</td><td class="num">2432.54</td><td class="num">2401.05</td><td class="num">28.4</td><td class="zone">flat 50.7&rarr;47.0</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
-      <tr><td class="sym">INFY.NS</td><td class="num">1091.9</td><td class="num">1142.64</td><td class="num">1108.63</td><td class="num">44.1</td><td class="zone">flat 52.7&rarr;48.1</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
-      <tr><td class="sym">HDFCBANK.NS</td><td class="num">821.8</td><td class="num">803.07</td><td class="num">737.2</td><td class="num">90.3</td><td class="zone">flat 74.9&rarr;71.2</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
-      <tr><td class="sym">ITC.NS</td><td class="num">301.0</td><td class="num">288.08</td><td class="num">271.53</td><td class="num">84.3</td><td class="zone">flat 70.5&rarr;72.5</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
-    </tbody>
-  </table>
-  </div>
-</section>
-
-<section aria-labelledby="h-portfolio">
-  <h2 id="h-portfolio">Simulated paper portfolio</h2>
-  <p class="section-note">The Executor's book after recorded runs. Every figure is simulated.</p>
-  <div class="stats">
-    <div class="stat"><div class="k">Starting cash</div><div class="v">&#8377;10,00,000</div><div class="u">simulated</div></div>
-    <div class="stat"><div class="k">Cash now</div><div class="v">&#8377;5,02,839</div><div class="u">simulated</div></div>
-    <div class="stat"><div class="k">Open positions</div><div class="v">1</div><div class="u">TCS.NS &middot; 212 qty</div></div>
-  </div>
-
-  <h3>Open positions</h3>
-  <div class="table-scroll">
-  <table>
-    <caption>Held simulated lots</caption>
-    <thead><tr><th scope="col">Symbol</th><th scope="col" class="num">Qty</th><th scope="col" class="num">Avg price</th></tr></thead>
-    <tbody><tr><td class="sym">TCS.NS</td><td class="num">212</td><td class="num">2345.1</td></tr></tbody>
-  </table>
-  </div>
-
-  <h3>Recent simulated fills</h3>
-  <div class="table-scroll">
-  <table>
-    <caption>Paper fills booked by the Executor</caption>
-    <thead><tr><th scope="col">Time (UTC)</th><th scope="col">Symbol</th><th scope="col">Side</th><th scope="col" class="num">Price</th></tr></thead>
-    <tbody>
-      <tr><td class="asof">2026-11-19 09:56:34</td><td class="sym">TCS.NS</td><td><span class="pill buy">BUY</span></td><td class="num">2347.5</td></tr>
-      <tr><td class="asof">2026-11-19 12:10:00</td><td class="sym">TCS.NS</td><td><span class="pill buy">BUY</span></td><td class="num">2342.7</td></tr>
-    </tbody>
-  </table>
-  </div>
-</section>
-
-<section aria-labelledby="h-flow">
-  <div class="flow">
-    <h2 id="h-flow">How the agents talk</h2>
-    <p class="section-note">The real pipeline, end to end. Agents communicate only through the shared BAND room.</p>
-    <div class="stages">
-      <div class="stage"><div class="n">Stage 1</div><div class="t">Market Analyst</div>
-        <div class="d">Computes SMA/RSI context from delayed daily bars; posts only state-changing signals as room mentions.</div></div>
-      <div class="stage"><div class="n">Stage 2</div><div class="t">BAND room</div>
-        <div class="d">Shared agent-to-agent channel. Every signal, status and fill is an auditable room message.</div></div>
-      <div class="stage"><div class="n">Stage 3</div><div class="t">Trade Executor</div>
-        <div class="d">Risk-checks each signal: no shorting, position and cash caps. Rejects or books.</div></div>
-      <div class="stage"><div class="n">Stage 4</div><div class="t">Paper portfolio</div>
-        <div class="d">Local simulated book. Fills are paper only - nothing touches a brokerage.</div></div>
+<details class="fold">
+  <summary>Latest recorded indicator snapshot</summary>
+  <div class="fold-body">
+    <p class="section-note">What the Analyst agent saw on the last recorded cycle. A <span class="pill none">none</span>
+    signal means the rules found no entry - a no-trade cycle is a valid outcome, not a missing feature.</p>
+    <div class="table-scroll">
+    <table>
+      <caption>NSE watchlist &middot; recorded cycle</caption>
+      <thead>
+        <tr><th scope="col">Symbol</th><th scope="col" class="num">Close</th><th scope="col" class="num">SMA10</th>
+        <th scope="col" class="num">SMA30</th><th scope="col" class="num">RSI14 (simple)</th>
+        <th scope="col">Finch RSI zone-transition (Wilder, prev&rarr;now)</th><th scope="col">Signal</th>
+        <th scope="col">Data as of (bar date)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="sym">RELIANCE.NS</td><td class="num">1375.6</td><td class="num">1342.3</td><td class="num">1249.94</td><td class="num">97.1</td><td class="zone">flat 74.7&rarr;73.1</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
+        <tr><td class="sym">TCS.NS</td><td class="num">2342.7</td><td class="num">2432.54</td><td class="num">2401.05</td><td class="num">28.4</td><td class="zone">flat 50.7&rarr;47.0</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
+        <tr><td class="sym">INFY.NS</td><td class="num">1091.9</td><td class="num">1142.64</td><td class="num">1108.63</td><td class="num">44.1</td><td class="zone">flat 52.7&rarr;48.1</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
+        <tr><td class="sym">HDFCBANK.NS</td><td class="num">821.8</td><td class="num">803.07</td><td class="num">737.2</td><td class="num">90.3</td><td class="zone">flat 74.9&rarr;71.2</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
+        <tr><td class="sym">ITC.NS</td><td class="num">301.0</td><td class="num">288.08</td><td class="num">271.53</td><td class="num">84.3</td><td class="zone">flat 70.5&rarr;72.5</td><td><span class="pill none">none</span></td><td class="asof">2026-11-19</td></tr>
+      </tbody>
+    </table>
     </div>
-    <p class="flow-legend">BAND room 561fa997 &middot; v2 strategy (narrowed watchlist) &middot; v1 fill + v2 no-trade cycle retained as provenance</p>
   </div>
-</section>
+</details>
+
+<details class="fold">
+  <summary>Simulated paper portfolio</summary>
+  <div class="fold-body">
+    <div class="stats">
+      <div class="stat"><div class="k">Starting cash</div><div class="v">&#8377;10,00,000</div><div class="u">simulated</div></div>
+      <div class="stat"><div class="k">Cash now</div><div class="v">&#8377;5,02,839</div><div class="u">simulated</div></div>
+      <div class="stat"><div class="k">Open positions</div><div class="v">1</div><div class="u">TCS.NS &middot; 212 qty</div></div>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <caption>Held simulated lots</caption>
+      <thead><tr><th scope="col">Symbol</th><th scope="col" class="num">Qty</th><th scope="col" class="num">Avg price</th></tr></thead>
+      <tbody><tr><td class="sym">TCS.NS</td><td class="num">212</td><td class="num">2345.1</td></tr></tbody>
+    </table>
+    </div>
+    <div class="table-scroll" style="margin-top:var(--s3)">
+    <table>
+      <caption>Paper fills booked by the Executor</caption>
+      <thead><tr><th scope="col">Time (UTC)</th><th scope="col">Symbol</th><th scope="col">Side</th><th scope="col" class="num">Price</th></tr></thead>
+      <tbody>
+        <tr><td class="asof">2026-11-19 09:56:34</td><td class="sym">TCS.NS</td><td><span class="pill buy">BUY</span></td><td class="num">2347.5</td></tr>
+        <tr><td class="asof">2026-11-19 12:10:00</td><td class="sym">TCS.NS</td><td><span class="pill buy">BUY</span></td><td class="num">2342.7</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</details>
+
+<details class="fold">
+  <summary>How the agents talk</summary>
+  <div class="fold-body">
+    <div class="flow">
+      <p class="section-note">The real pipeline, end to end. Agents communicate only through the shared BAND room.</p>
+      <div class="stages">
+        <div class="stage"><div class="n">Stage 1</div><div class="t">Market Analyst</div>
+          <div class="d">Computes SMA/RSI context from delayed daily bars; posts only state-changing signals as room mentions.</div></div>
+        <div class="stage"><div class="n">Stage 2</div><div class="t">BAND room</div>
+          <div class="d">Shared agent-to-agent channel. Every signal, status and fill is an auditable room message.</div></div>
+        <div class="stage"><div class="n">Stage 3</div><div class="t">Trade Executor</div>
+          <div class="d">Risk-checks each signal: no shorting, position and cash caps. Rejects or books.</div></div>
+        <div class="stage"><div class="n">Stage 4</div><div class="t">Paper portfolio</div>
+          <div class="d">Local simulated book. Fills are paper only - nothing touches a brokerage.</div></div>
+      </div>
+      <p class="flow-legend">BAND room 561fa997 &middot; v2 strategy (narrowed watchlist) &middot; v1 fill + v2 no-trade cycle retained as provenance</p>
+    </div>
+  </div>
+</details>
+</div>
+</main>
 
 <footer>
   <div class="rule"></div>
   <p>Built by team 0dev for the Diwali Festiverse Agent-to-Agent Hackathon (India Edition).
-  Data: delayed public daily-bar data via yfinance; indicator constructions documented in the repo
-  (simple vs Wilder RSI differ by design). More of this builder's work: <a href="https://www.mr-nagabhushanaraju-s.engineer/">mr-nagabhushanaraju-s.engineer</a></p>
-  <p>This page makes no live calls and collects nothing.
-  Simulation only - no real trades, no investment advice.</p>
+  More of this builder's work: <a href="https://www.mr-nagabhushanaraju-s.engineer/">mr-nagabhushanaraju-s.engineer</a></p>
+  <p>Simulation only - no real trades, no investment advice. This page makes no live calls and collects nothing.</p>
 </footer>
 
 </div>

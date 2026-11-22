@@ -215,7 +215,7 @@
   function render() {
     var snap = evaluateSymbol(cur.sym, cur.idx);
     $("chart").innerHTML = renderChart(snap);
-    $("asof-label").textContent = snap.asof + " (bar " + (cur.idx + 1) + " of " + DATA[cur.sym].length + ")";
+    $("asof-label").innerHTML = snap.asof + " <small>(bar " + (cur.idx + 1) + " of " + DATA[cur.sym].length + ")</small>";
     $("slider").max = DATA[cur.sym].length - 1;
     $("slider").value = cur.idx;
 
@@ -245,11 +245,11 @@
     if (snap.side) {
       out.innerHTML = '<div class="sig ' + (snap.side === "BUY" ? "sig-buy" : "sig-sell") + '">' +
         '<span class="sig-side">' + snap.side + " " + snap.symbol + "</span>" +
-        '<code>' + escapeHtml(formatSignal(snap)) + "</code></div>";
+        '<details class="payload"><summary>Room message payload</summary><code>' + escapeHtml(formatSignal(snap)) + "</code></details></div>";
       $("executor-box").hidden = false;
     } else {
       out.innerHTML = '<div class="sig sig-flat"><span class="sig-side">NO TRADE</span>' +
-        "<code>" + escapeHtml(formatNoTrade(snap.symbol + ": " + f.reason)) + "</code></div>";
+        '<details class="payload"><summary>Room message payload</summary><code>' + escapeHtml(formatNoTrade(snap.symbol + ": " + f.reason)) + "</code></details></div>";
       $("executor-box").hidden = true;
     }
     $("fill-result").textContent = "";
