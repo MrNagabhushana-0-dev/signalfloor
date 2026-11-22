@@ -2,259 +2,339 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SignalFloor - paper trading console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SignalFloor - NSE paper trading desk</title>
+<meta name="description" content="SignalFloor: an agent-to-agent NSE paper trading desk. Scan real delayed market data with your rules, replay them bar by bar, and track paper orders. Simulation only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070809'/%3E%3Cpath d='M10 8v4M10 20v4' stroke='%2322d483' stroke-width='2'/%3E%3Crect x='7' y='12' width='6' height='8' rx='1.5' fill='%2322d483'/%3E%3Cpath d='M22 10v3M22 23v3' stroke='%23f6465d' stroke-width='2'/%3E%3Crect x='19' y='13' width='6' height='10' rx='1.5' fill='%23f6465d'/%3E%3C/svg%3E">
 <style>
-  :root {
-    --bg: #f5f6f8; --card: #ffffff; --line: #e4e7ec; --ink: #101828;
-    --muted: #667085; --faint: #98a2b3;
-    --buy: #067647; --buy-bg: #ecfdf3; --sell: #b42318; --sell-bg: #fef3f2;
-    --hold-bg: #f2f4f7; --warn: #b54708; --warn-bg: #fffaeb;
-    --accent: #175cd3;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
-    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  .num { font-variant-numeric: tabular-nums; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 60px; }
+:root{
+  --bg:#07080a; --bg2:#0b0d10; --panel:#111418; --panel2:#171b21; --panel3:#1e242c;
+  --line:#232932; --line2:#2e3641;
+  --ink:#f3f5f7; --muted:#9aa4b2; --faint:#5d6875;
+  --buy:#22d483; --buy-deep:#0e9f63; --buy-dim:rgba(34,212,131,.12);
+  --sell:#f6465d; --sell-deep:#d93a4e; --sell-dim:rgba(246,70,93,.12);
+  --accent:#4c8dff; --accent2:#9a6bff;
+  --warn:#f7b955; --warn-dim:rgba(247,185,85,.12);
+  --radius:14px;
+  --shadow:0 10px 34px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+button{font:inherit;cursor:pointer;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 14px;transition:background .15s,border-color .15s,transform .06s}
+button:hover{background:var(--panel3);border-color:var(--line2)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:default}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#2a313b;border-radius:6px;border:2px solid var(--bg)}
+::-webkit-scrollbar-track{background:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 
-  h1 { font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; }
+#app{display:grid;grid-template-rows:auto 1fr auto;height:100vh;height:100dvh}
 
-  .hero { background: linear-gradient(135deg, #0b1220 0%, #101c33 55%, #0f2a4a 100%);
-    color: #e6edf7; border-radius: 16px; padding: 24px 22px 18px; margin-bottom: 18px;
-    box-shadow: 0 8px 24px rgba(11,18,32,.18); }
-  .hero-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
-  .hero h1 { color: #fff; font-size: 1.6rem; }
-  .badge { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-    background: rgba(181,71,8,.18); color: #fdb022; border: 1px solid rgba(253,176,34,.35);
-    border-radius: 999px; padding: 3px 10px; }
-  .hero .tag { color: #c3d0e4; font-size: 1.02rem; line-height: 1.5; margin: 10px 0 16px; max-width: 62ch; }
-  .hero .tag b { color: #fff; font-weight: 600; }
-  .steps { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-  .step { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.13);
-    border-radius: 10px; padding: 8px 13px; font-size: .83rem; color: #dbe5f3;
-    display: flex; align-items: center; gap: 9px; }
-  .step span { display: inline-flex; width: 20px; height: 20px; border-radius: 50%;
-    background: #2e90fa; color: #fff; font-size: .72rem; font-weight: 700;
-    align-items: center; justify-content: center; flex: none; }
-  .hero .honest { color: #8ea0b8; font-size: .76rem; line-height: 1.5; margin: 0; max-width: 78ch; }
-  .hero .honest b { color: #c3d0e4; font-weight: 600; }
+/* ---------- top bar ---------- */
+#topbar{display:flex;align-items:center;gap:14px;padding:10px 16px;background:linear-gradient(180deg,#0d1014,#090b0e);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.12rem;letter-spacing:-.01em}
+.brand svg{flex:none}
+.pill-sim{font-size:.62rem;font-weight:800;letter-spacing:.09em;color:var(--warn);background:var(--warn-dim);border:1px solid rgba(247,185,85,.35);border-radius:999px;padding:3px 9px;text-transform:uppercase;white-space:nowrap}
+.datachip{font-size:.78rem;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.datachip b{color:var(--ink);font-weight:650}
+.bals{display:flex;gap:8px;margin-left:auto}
+.bal{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:5px 13px;min-width:104px}
+.bal span{display:block;font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.bal b{font-size:.98rem;font-weight:700}
+.bal b.up{color:var(--buy)} .bal b.down{color:var(--sell)}
+.bals.rp-dim{opacity:.5}
+.bals.rp-dim::after{content:"current book · not the replay";font-size:.56rem;color:var(--warn);align-self:center;letter-spacing:.06em;text-transform:uppercase;font-weight:800;white-space:nowrap}
+#btn-refresh{background:var(--panel2);font-weight:600;display:inline-flex;align-items:center;gap:7px}
+#btn-refresh .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--faint);border-top-color:var(--ink);border-radius:50%;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
 
-  .datarow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-    margin: 14px 0 18px; font-size: .85rem; color: var(--muted); }
-  .datarow .fresh { font-weight: 600; color: var(--ink); }
+/* ---------- desk layout ---------- */
+#desk{display:grid;grid-template-columns:60px 1fr 348px;min-height:0}
+#rail{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0;border-right:1px solid var(--line);background:var(--bg2)}
+.railbtn{width:44px;height:48px;border:none;background:none;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--faint);font-size:.58rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.railbtn svg{width:19px;height:19px}
+.railbtn:hover{background:var(--panel);color:var(--muted)}
+.railbtn.on{background:var(--panel2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}
+.railbtn .dot{position:absolute;margin-left:26px;margin-top:-14px;width:7px;height:7px;border-radius:50%;background:var(--warn)}
 
-  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
-    background: #fff; color: var(--ink); padding: 7px 14px; }
-  button.primary { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
-  button:disabled { opacity: .55; cursor: default; }
-  button.small { padding: 4px 10px; font-size: .82rem; }
-  button.linklike { border: none; background: none; color: var(--accent); padding: 0; font-size: .82rem; }
+/* ---------- chart ---------- */
+#chartcol{display:flex;flex-direction:column;min-width:0;min-height:0;background:
+  radial-gradient(1200px 500px at 70% -10%,rgba(76,141,255,.05),transparent 60%),var(--bg)}
+#symbar{display:flex;align-items:center;gap:8px;padding:10px 14px 6px;overflow-x:auto;scrollbar-width:none}
+#symbar::-webkit-scrollbar{display:none}
+.symchip{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 13px;min-width:86px;text-align:left}
+.symchip b{font-size:.86rem;font-weight:700}
+.symchip .c{font-size:.7rem;color:var(--muted)}
+.symchip .c.up{color:var(--buy)} .symchip .c.down{color:var(--sell)}
+.symchip.on{border-color:var(--accent);background:linear-gradient(180deg,rgba(76,141,255,.12),rgba(76,141,255,.03));box-shadow:0 0 0 1px var(--accent) inset}
+.symchip:hover{border-color:var(--line2)}
+.addchip{flex:none;width:38px;height:44px;border-radius:12px;font-size:1.15rem;color:var(--muted)}
+#chartwrap{position:relative;flex:1;min-height:0;margin:4px 8px 0 14px}
+#chartwrap svg{width:100%;height:100%;display:block}
+#chart-fade{position:absolute;inset:0;pointer-events:none;background:var(--bg);opacity:0;transition:opacity .18s}
+#chart-fade.on{opacity:.55}
+#ohlc{position:absolute;left:10px;top:8px;font-size:.74rem;color:var(--muted);background:rgba(11,13,16,.82);border:1px solid var(--line);border-radius:9px;padding:5px 10px;pointer-events:none;white-space:nowrap;backdrop-filter:blur(4px)}
+#ohlc b{color:var(--ink);font-weight:600}
+#replaymark{position:absolute;right:12px;top:10px;font-size:.66rem;font-weight:800;letter-spacing:.12em;color:var(--warn);background:rgba(20,16,6,.85);border:1px solid rgba(247,185,85,.45);border-radius:8px;padding:5px 10px;pointer-events:none;text-transform:uppercase}
+#replaybar{display:none;align-items:center;gap:10px;padding:10px 16px 12px;border-top:1px solid var(--line);background:var(--bg2);flex-wrap:wrap}
+#replaybar.show{display:flex}
+.rp-btn{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);font-size:.95rem}
+.rp-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.rp-lbl{font-size:.72rem;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+#rp-range{flex:1;min-width:120px;accent-color:var(--accent)}
+#rp-stats{display:flex;gap:14px;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+#rp-stats b{color:var(--ink)}
+#rp-stats .up{color:var(--buy)} #rp-stats .down{color:var(--sell)}
 
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
-  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-  .stat .k { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-  .stat .v { font-size: 1.25rem; font-weight: 650; margin-top: 2px; }
-  .stat .v.up { color: var(--buy); } .stat .v.down { color: var(--sell); }
+/* ---------- side panel ---------- */
+#side{display:flex;flex-direction:column;gap:12px;padding:12px 14px;border-left:1px solid var(--line);background:var(--bg2);overflow-y:auto;min-height:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.card h3{margin:0 0 2px;font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:750}
+.card .sub{font-size:.74rem;color:var(--faint);margin-bottom:10px}
 
-  .grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; align-items: start; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px;
-    box-shadow: 0 1px 3px rgba(16,24,40,.06); }
-  .card h2 { font-size: .95rem; margin: 0 0 4px; }
-  .card .role { font-size: .78rem; color: var(--faint); margin-bottom: 12px; }
+#sigcard{position:relative;overflow:hidden}
+#sigcard::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 130px at 20% -20%,var(--sig-glow,transparent),transparent 70%);pointer-events:none}
+.sigverdict{display:flex;align-items:center;gap:12px;margin:6px 0 4px}
+.sigword{font-size:1.7rem;font-weight:850;letter-spacing:-.02em}
+.sigword.BUY{color:var(--buy)} .sigword.SELL{color:var(--sell)} .sigword.HOLD{color:var(--muted)}
+.sigbadge{font-size:.66rem;font-weight:800;letter-spacing:.08em;border-radius:999px;padding:4px 11px;text-transform:uppercase}
+.sigbadge.BUY{background:var(--buy-dim);color:var(--buy);border:1px solid rgba(34,212,131,.4)}
+.sigbadge.SELL{background:var(--sell-dim);color:var(--sell);border:1px solid rgba(246,70,93,.4)}
+.sigbadge.HOLD{background:var(--panel3);color:var(--muted);border:1px solid var(--line2)}
+.sigreason{font-size:.8rem;color:var(--muted);margin:4px 0 10px}
+.siggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sigcell{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.sigcell span{display:block;font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.sigcell b{font-size:.92rem;font-weight:700}
+.gauge{height:6px;border-radius:4px;background:linear-gradient(90deg,var(--buy) 0%,var(--panel3) 30%,var(--panel3) 70%,var(--sell) 100%);position:relative;margin-top:6px}
+.gauge i{position:absolute;top:-3px;width:4px;height:12px;border-radius:2px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.7);transform:translateX(-2px)}
 
-  table.signals { width: 100%; border-collapse: collapse; }
-  table.signals th { text-align: left; font-size: .72rem; color: var(--faint); text-transform: uppercase;
-    letter-spacing: .05em; font-weight: 600; padding: 4px 8px 8px 0; border-bottom: 1px solid var(--line); }
-  table.signals td { padding: 10px 8px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-  table.signals tr:last-child td { border-bottom: none; }
-  .sym { font-weight: 650; }
-  .px { color: var(--muted); font-size: .82rem; }
-  .inds { color: var(--muted); font-size: .82rem; }
-  .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em;
-    border-radius: 999px; padding: 3px 10px; }
-  .pill.BUY { background: var(--buy-bg); color: var(--buy); }
-  .pill.SELL { background: var(--sell-bg); color: var(--sell); }
-  .pill.HOLD { background: var(--hold-bg); color: var(--muted); }
-  .reason { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+#ticket .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px}
+#ticket .seg button{padding:13px 0;font-weight:800;font-size:1rem;border-radius:12px;letter-spacing:.02em}
+#ticket .seg button.on-buy{background:linear-gradient(180deg,var(--buy),var(--buy-deep));border-color:var(--buy);color:#04160d;box-shadow:0 4px 18px rgba(34,212,131,.25)}
+#ticket .seg button.on-sell{background:linear-gradient(180deg,var(--sell),var(--sell-deep));border-color:var(--sell);color:#21060a;box-shadow:0 4px 18px rgba(246,70,93,.25)}
+.qtyrow{display:flex;align-items:stretch;gap:8px;margin-bottom:10px}
+.qtyrow button{width:46px;font-size:1.25rem;font-weight:700;flex:none}
+.qtyrow input{flex:1;min-width:0;text-align:center;font:inherit;font-size:1.15rem;font-weight:700;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:9px 6px}
+.qtychips{display:flex;gap:6px;margin-bottom:10px}
+.qtychips button{flex:1;font-size:.76rem;padding:5px 0;color:var(--muted)}
+#t-est{font-size:.78rem;color:var(--muted);min-height:1.25em;margin-bottom:10px}
+#t-submit{width:100%;padding:14px 0;font-weight:850;font-size:1.02rem;border-radius:12px;letter-spacing:.02em}
+#t-submit.buy{background:linear-gradient(180deg,var(--buy),var(--buy-deep));border-color:var(--buy);color:#04160d}
+#t-submit.sell{background:linear-gradient(180deg,var(--sell),var(--sell-deep));border-color:var(--sell);color:#21060a}
+.fillnote{font-size:.7rem;color:var(--faint);margin-top:9px;line-height:1.45}
+#t-err{color:var(--sell);font-size:.78rem;margin-top:8px;min-height:1.1em}
+#t-ok{color:var(--buy);font-size:.78rem;margin-top:8px}
 
-  .ticket label { display: block; font-size: .78rem; color: var(--muted); margin: 10px 0 4px; }
-  .ticket select, .ticket input { width: 100%; font: inherit; padding: 8px 10px;
-    border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-  .seg { display: flex; gap: 6px; }
-  .seg button { flex: 1; padding: 8px 0; font-weight: 600; }
-  .seg button.on-buy { background: var(--buy-bg); border-color: var(--buy); color: var(--buy); }
-  .seg button.on-sell { background: var(--sell-bg); border-color: var(--sell); color: var(--sell); }
-  .est { font-size: .82rem; color: var(--muted); margin: 10px 0; min-height: 1.2em; }
-  .err { color: var(--sell); font-size: .82rem; margin-top: 8px; min-height: 1.2em; }
-  .okmsg { color: var(--buy); font-size: .82rem; margin-top: 8px; }
+.mini-line{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+.mini-line:last-child{border-bottom:none}
+.mini-line .meta{color:var(--faint);font-size:.72rem}
+.st{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.06em;border-radius:999px;padding:2px 8px;text-transform:uppercase;flex:none}
+.st.pending{background:var(--warn-dim);color:var(--warn)}
+.st.filled{background:var(--buy-dim);color:var(--buy)}
+.st.rejected{background:var(--sell-dim);color:var(--sell)}
+.st.holding{background:rgba(76,141,255,.13);color:var(--accent)}
+.empty{color:var(--faint);font-size:.8rem;padding:10px 0;text-align:center}
+.linklike{border:none;background:none;color:var(--accent);font-size:.74rem;padding:0}
+.linklike:hover{background:none;text-decoration:underline}
 
-  .order { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
-  .order:last-child { border-bottom: none; }
-  .order .meta { color: var(--muted); font-size: .8rem; }
-  .st { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .04em;
-    border-radius: 999px; padding: 2px 8px; margin-right: 6px; }
-  .st.pending { background: var(--warn-bg); color: var(--warn); }
-  .st.filled { background: var(--buy-bg); color: var(--buy); }
-  .st.rejected { background: var(--sell-bg); color: var(--sell); }
-  .st.holding { background: #eef4ff; color: var(--accent); }
-  .empty { color: var(--faint); font-size: .85rem; padding: 8px 0; }
+/* ---------- sheets ---------- */
+#sheetback{position:fixed;inset:0;background:rgba(3,4,6,.66);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+#sheetback.on{opacity:1;pointer-events:auto}
+#sheet{position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);background:var(--bg2);border-left:1px solid var(--line2);z-index:41;transform:translateX(102%);transition:transform .24s cubic-bezier(.2,.8,.25,1);display:flex;flex-direction:column;box-shadow:var(--shadow)}
+#sheet.on{transform:translateX(0)}
+#sheet .shead{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+#sheet .shead h2{margin:0;font-size:1.02rem;font-weight:800}
+#sheet .shead .x{margin-left:auto;background:var(--panel2);width:34px;height:34px;border-radius:10px;font-size:1rem}
+#sheet .sbody{flex:1;overflow-y:auto;padding:14px 16px 30px}
 
-  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; }
-  details summary { cursor: pointer; font-weight: 600; font-size: .9rem; }
-  details summary .hint { font-weight: 400; color: var(--faint); font-size: .8rem; margin-left: 6px; }
+/* lab */
+.labrow{margin-bottom:16px}
+.labrow .lhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.labrow label{font-size:.8rem;color:var(--muted);font-weight:600}
+.labrow .val{font-size:.86rem;font-weight:750;color:var(--ink)}
+.labrow input[type=range]{width:100%;accent-color:var(--accent);height:26px}
+.labhint{font-size:.7rem;color:var(--faint);margin-top:2px}
+.labgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.checkline{display:flex;align-items:center;gap:9px;font-size:.84rem;color:var(--ink);padding:8px 0}
+.checkline input{width:17px;height:17px;accent-color:var(--accent)}
+.watchwrap{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+.watchwrap label{font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:5px 13px;cursor:pointer;color:var(--muted);background:var(--panel)}
+.watchwrap label.on{border-color:var(--accent);color:var(--ink);background:rgba(76,141,255,.1);font-weight:650}
+.watchwrap input{display:none}
+.addsym{display:flex;gap:8px;margin-top:8px}
+.addsym input{flex:1;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--ink)}
+#addsym-err{color:var(--sell);font-size:.76rem;margin-top:6px}
+#addsym-warn{color:var(--warn);font-size:.76rem;margin-top:6px}
+.teststats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.teststats .stat{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:8px 10px}
+.teststats .k{font-size:.58rem;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.teststats .v{font-size:.92rem;font-weight:750;margin-top:1px}
+.ev{font-size:.8rem;padding:9px 0;border-bottom:1px solid var(--line)}
+.ev:last-child{border-bottom:none}
+.ev .why{color:var(--faint);font-size:.72rem;margin-top:2px}
 
-  .lab { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 16px; margin: 12px 0; }
-  .lab label { font-size: .78rem; color: var(--muted); display: block; margin-bottom: 3px; }
-  .lab input { width: 100%; font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; }
-  .lab .checkline { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ink); }
-  .lab .checkline input { width: auto; }
-  .symlist { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
-  .symlist label { font-size: .82rem; border: 1px solid var(--line); border-radius: 999px;
-    padding: 4px 12px; cursor: pointer; color: var(--muted); }
-  .symlist label.on { border-color: var(--ink); color: var(--ink); font-weight: 600; }
-  .symlist input { display: none; }
-  .addsym { display: flex; gap: 8px; margin-top: 10px; }
-  .addsym input { flex: 1; font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; }
+/* book */
+.booksec{margin-bottom:18px}
+.booksec h4{margin:0 0 8px;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:750}
+.bline{padding:10px 0;border-bottom:1px solid var(--line);font-size:.86rem}
+.bline:last-child{border-bottom:none}
+.bline .meta{color:var(--muted);font-size:.74rem;margin-top:3px}
+.bline .meta.warn{color:var(--warn)}
+.pos-pl{font-weight:700}
+.pos-pl.up{color:var(--buy)} .pos-pl.down{color:var(--sell)}
 
-  .chartwrap { margin: 14px 0 4px; }
-  .chartwrap svg { width: 100%; height: auto; display: block; }
-  .chartleg { display: flex; gap: 16px; font-size: .78rem; color: var(--muted); margin-top: 6px; }
-  .chartleg i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
-  .teststats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 12px 0; }
-  .teststats .stat { padding: 9px 12px; }
-  .teststats .v { font-size: 1.02rem; }
-  .ev { font-size: .84rem; padding: 8px 0; border-bottom: 1px solid var(--line); }
-  .ev:last-child { border-bottom: none; }
-  .ev .why { color: var(--muted); font-size: .78rem; }
+/* info */
+.prov{font-size:.82rem;color:var(--muted)}
+.prov li{margin-bottom:9px}
+.prov b{color:var(--ink)}
+.errline{color:var(--sell)}
+.about-links{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.about-links a{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:.88rem;font-weight:600}
+.about-links a:hover{border-color:var(--line2);background:var(--panel2)}
+.about-links a span:last-child{color:var(--faint);font-weight:400;font-size:.78rem}
+.disclaimer{font-size:.72rem;color:var(--faint);margin-top:16px;line-height:1.55;border-top:1px solid var(--line);padding-top:12px}
 
-  .prov { font-size: .82rem; color: var(--muted); }
-  .prov li { margin-bottom: 6px; }
-  .errline { color: var(--sell); }
+/* ---------- onboarding ---------- */
+#onboard{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(3,4,6,.78);backdrop-filter:blur(6px);padding:18px}
+#onboard[hidden]{display:none}
+.ob-card{max-width:480px;width:100%;background:linear-gradient(180deg,#12161c,#0b0e12);border:1px solid var(--line2);border-radius:20px;padding:26px 24px 20px;box-shadow:var(--shadow)}
+.ob-step{display:flex;gap:13px;margin:16px 0}
+.ob-n{flex:none;width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,var(--accent),#2f6ae0);color:#fff;font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.ob-step b{display:block;font-size:.95rem;margin-bottom:2px}
+.ob-step p{margin:0;font-size:.82rem;color:var(--muted)}
+.ob-honest{font-size:.74rem;color:var(--warn);background:var(--warn-dim);border:1px solid rgba(247,185,85,.3);border-radius:10px;padding:9px 12px;margin:14px 0 18px;line-height:1.5}
+#ob-go{width:100%;padding:13px;font-weight:800;font-size:1rem;background:linear-gradient(180deg,var(--buy),var(--buy-deep));border-color:var(--buy);color:#04160d;border-radius:12px}
+.ob-skip{display:block;margin:10px auto 0;background:none;border:none;color:var(--faint);font-size:.78rem}
 
-  footer { margin-top: 24px; font-size: .8rem; color: var(--faint); display: flex; flex-wrap: wrap; gap: 14px; }
-  footer a { color: var(--muted); }
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(18px);background:#161b22;border:1px solid var(--line2);border-radius:12px;padding:11px 16px;font-size:.8rem;color:var(--ink);box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .25s;z-index:70;max-width:min(520px,92vw);white-space:pre-line}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  .refresh-status { width: 100%; font-size: .8rem; color: var(--muted); }
-  .refresh-status .errline { font-size: .8rem; }
-
-  @media (max-width: 760px) {
-    .grid { grid-template-columns: 1fr; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    table.signals th:nth-child(3), table.signals td:nth-child(3) { display: none; }
-  }
+/* ---------- mobile ---------- */
+#mobilebar{display:none}
+@media (max-width:1023px){
+  #desk{grid-template-columns:1fr;grid-template-rows:1fr}
+  #rail{display:none}
+  #side{display:none}
+  #side.mobile-open{display:flex;position:fixed;inset:auto 0 0 0;max-height:62vh;z-index:45;background:var(--bg2);border-top:1px solid var(--line2);border-left:none;border-radius:18px 18px 0 0;box-shadow:var(--shadow);padding-bottom:22px}
+  #mobilebar{display:grid;grid-template-columns:repeat(5,1fr);background:var(--bg2);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .mbtn{border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--faint);font-size:.58rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:6px 0;border-radius:10px}
+  .mbtn svg{width:20px;height:20px}
+  .mbtn.on{color:var(--ink)}
+  .mbtn .dot{position:absolute;margin-left:22px;margin-top:-2px;width:7px;height:7px;border-radius:50%;background:var(--warn)}
+  .bals{order:3;width:100%;margin-left:0}
+  .bal{flex:1;min-width:0}
+  #topbar{gap:8px;padding:9px 12px}
+  #chartwrap{margin:2px 6px 0 8px}
+  #sheet{width:100vw;border-left:none}
+  .teststats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:1023px){
+  /* mobile desk stack: chart then ticket inside scroll */
+  #desk{display:flex;flex-direction:column;overflow-y:auto}
+  #chartcol{flex:none;height:58vh;min-height:380px}
+  #mobticket{flex:none;padding:10px 12px 20px;display:flex;flex-direction:column;gap:12px}
+}
+@media (min-width:1024px){ #mobticket{display:none} }
+@media (max-width:1023px){ #app{grid-template-rows:auto minmax(0,1fr) auto} }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div id="app">
 
-  <header class="hero">
-    <div class="hero-top">
-      <h1>SignalFloor</h1>
-      <span class="badge">Simulation only</span>
+  <header id="topbar">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#10131a"/><path d="M10 8v4M10 20v4" stroke="#22d483" stroke-width="2"/><rect x="7" y="12" width="6" height="8" rx="1.5" fill="#22d483"/><path d="M22 10v3M22 23v3" stroke="#f6465d" stroke-width="2"/><rect x="19" y="13" width="6" height="10" rx="1.5" fill="#f6465d"/></svg>
+      SignalFloor
+      <span class="pill-sim">Simulation only</span>
     </div>
-    <p class="tag">Two agents, one desk: an <b>analyst</b> that scans NSE stocks with your rules and an
-      <b>executor</b> that paper-trades the plan - every number from real delayed market data, every decision visible.</p>
-    <div class="steps">
-      <div class="step"><span>1</span>Scan the watchlist with SMA/RSI rules</div>
-      <div class="step"><span>2</span>Replay your rules on real history before trusting them</div>
-      <div class="step"><span>3</span>Place paper orders and track them bar by bar</div>
+    <div class="datachip" id="data-chip" title="Delayed end-of-day NSE bars">Data through <b id="data-through">...</b> · delayed daily bars</div>
+    <div class="bals">
+      <div class="bal"><span>Paper cash</span><b class="num" id="bal-cash">...</b></div>
+      <div class="bal"><span>Total</span><b class="num" id="bal-total">...</b></div>
+      <div class="bal"><span>P&amp;L</span><b class="num" id="bal-pl">...</b></div>
     </div>
-    <p class="honest">Signals and order execution run the <b>same rule logic as the BAND-room analyst and executor agents</b>,
-      recomputed locally in your browser from delayed daily bars. This console is not connected to the live BAND room -
-      live agent-to-agent messaging happens only in the separate Python agents and is not shown on this page.
-      No brokerage, no real orders, no real money.</p>
+    <button id="btn-refresh" type="button" title="Fetch the latest delayed bars through the same-origin proxy">Refresh data</button>
   </header>
 
-  <div class="datarow">
-    <span>Data through <b class="fresh" id="data-through">...</b> (delayed daily bars)</span>
-    <span id="refresh-state"></span>
-    <button id="btn-refresh" class="primary" type="button">Refresh data</button>
-    <div class="refresh-status" id="refresh-status"></div>
-  </div>
+  <div id="desk">
+    <nav id="rail" aria-label="Sections">
+      <button class="railbtn on" data-sheet="" id="rail-desk" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9M4 9l4-4M20 5v10M20 15l-4 4"/><rect x="7" y="9" width="4" height="7" rx="1"/><rect x="13" y="7" width="4" height="8" rx="1"/></svg>Desk</button>
+      <button class="railbtn" data-sheet="book" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3V4z"/><path d="M9 9h6M9 13h6"/></svg>Book<span class="dot" id="dot-book" hidden></span></button>
+      <button class="railbtn" data-sheet="lab" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18h16M6 18v-5M10 18V8M14 18v-7M18 18V5"/></svg>Rule lab</button>
+      <button class="railbtn" data-replay="1" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.5l6 3.5-6 3.5z" fill="currentColor" stroke="none"/></svg>Replay</button>
+      <button class="railbtn" data-sheet="info" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 7.8v.3"/></svg>Data</button>
+    </nav>
 
-  <div class="stats" id="bookline"></div>
+    <main id="chartcol">
+      <div id="symbar" role="tablist" aria-label="Watchlist symbols"></div>
+      <div id="chartwrap">
+        <svg id="chart" role="img" aria-label="Candlestick chart computed from loaded delayed bars"></svg>
+        <div id="chart-fade"></div>
+        <div id="ohlc" hidden></div>
+        <div id="replaymark" hidden>Historical replay · simulated</div>
+      </div>
+      <div id="replaybar">
+        <button class="rp-btn" id="rp-exit" type="button" title="Exit replay">✕</button>
+        <button class="rp-btn" id="rp-back" type="button" title="Step back one bar">‹</button>
+        <button class="rp-btn primary" id="rp-play" type="button" title="Play / pause">▶</button>
+        <button class="rp-btn" id="rp-fwd" type="button" title="Step forward one bar">›</button>
+        <input type="range" id="rp-range" min="0" max="0" value="0" aria-label="Replay position">
+        <div id="rp-stats"></div>
+      </div>
+    </main>
 
-  <div class="grid">
-    <div>
+    <aside id="side">
+      <div class="card" id="sigcard"></div>
+      <div class="card" id="ticket"></div>
       <div class="card">
-        <h2>Signals</h2>
-        <div class="role">Analyst role - one verdict per watchlist symbol on the latest loaded bar</div>
-        <table class="signals">
-          <thead><tr><th>Symbol</th><th>Verdict</th><th class="why">Why</th><th></th></tr></thead>
-          <tbody id="scan"></tbody>
-        </table>
+        <h3>On this desk</h3>
+        <div class="sub">Positions and pending paper orders - this browser only</div>
+        <div id="sidebook"></div>
       </div>
+    </aside>
 
-      <div class="card ticket">
-        <h2>Order ticket</h2>
-        <div class="role">Manual paper order - fills at the first session open that is not already in the past, once that bar arrives via Refresh data</div>
-        <label>Side</label>
-        <div class="seg">
-          <button type="button" id="side-buy">Buy</button>
-          <button type="button" id="side-sell">Sell</button>
-        </div>
-        <label>Symbol</label>
-        <select id="t-symbol"></select>
-        <label>Quantity (whole shares)</label>
-        <input id="t-qty" type="number" min="1" step="1" placeholder="e.g. 10" inputmode="numeric">
-        <div class="est" id="t-est"></div>
-        <button class="primary" id="t-submit" type="button">Queue paper order</button>
-        <div class="err" id="t-err"></div>
-        <div class="okmsg" id="t-ok"></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="card">
-        <h2>Paper book</h2>
-        <div class="role">Executor role - risk checks, bookings, fills. Persisted in this browser only.</div>
-        <div id="orders"></div>
-        <div style="margin-top:10px"><button class="small" id="btn-reset-book" type="button">Reset paper book</button></div>
-      </div>
-    </div>
+    <div id="mobticket"></div>
   </div>
 
-  <div class="card" id="lab">
-    <h2>Rule lab</h2>
-    <div class="role">Tune the strategy, replay it on loaded history - the chart redraws from the actual computation on every change. No canned scenarios.</div>
-    <div class="lab">
-      <div><label>RSI period</label><input id="in-rsiPeriod" type="number" min="2" max="50" step="1"></div>
-      <div><label>Oversold below</label><input id="in-oversold" type="number" min="1" max="49" step="1"></div>
-      <div><label>Overbought above</label><input id="in-overbought" type="number" min="51" max="99" step="1"></div>
-      <div><label>SMA fast</label><input id="in-smaFast" type="number" min="2" max="100" step="1"></div>
-      <div><label>SMA slow</label><input id="in-smaSlow" type="number" min="3" max="200" step="1"></div>
-      <div><label>Order budget (% of start cash)</label><input id="in-budgetPct" type="number" min="1" max="100" step="1"></div>
-      <div><label>Fee per side (%)</label><input id="in-feePct" type="number" min="0" max="5" step="0.05"></div>
-      <div class="checkline"><label class="checkline"><input id="in-trendFilter" type="checkbox"> Trend filter (no buys below SMA cross, no sells above)</label></div>
-    </div>
-    <label style="font-size:.78rem;color:var(--muted)">Watchlist</label>
-    <div class="symlist" id="symlist"></div>
-    <div class="addsym">
-      <input id="in-addsym" type="text" placeholder="Add NSE symbol, e.g. HDFCBANK" maxlength="18">
-      <button id="btn-addsym" type="button">Fetch &amp; add</button>
-    </div>
-    <div class="err" id="addsym-err"></div>
-    <div class="lab" style="margin-top:14px">
-      <div><label>Replay rules on</label><select id="in-testSymbol" style="font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;width:100%"></select></div>
-    </div>
-    <div class="chartwrap" id="test-chart"></div>
-    <div class="teststats" id="test-stats"></div>
-    <div id="test-events"></div>
-  </div>
-
-  <details>
-    <summary>Data &amp; provenance <span class="hint">sources, freshness, honest limits</span></summary>
-    <div class="prov" id="provenance"></div>
-  </details>
-
-  <footer>
-    <span>SignalFloor - Diwali Festiverse agent-to-agent hackathon, team 0dev.</span>
-    <a href="https://www.mr-nagabhushanaraju-s.engineer/">Built by Nagabhushana Raju S</a>
-    <a href="archive/docs-2026-11-22-frozen/">Archived build (2026-11-22)</a>
-    <span>Paper accounting only - not investment advice; simulated results are not evidence of real-world performance.</span>
-  </footer>
+  <nav id="mobilebar" aria-label="Sections">
+    <button class="mbtn on" data-mtab="desk" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="9" width="4" height="7" rx="1"/><rect x="13" y="7" width="4" height="8" rx="1"/><path d="M4 19V9M20 5v10"/></svg>Desk</button>
+    <button class="mbtn" data-mtab="trade" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v10M12 14l-4-4M12 14l4-4"/><path d="M5 20h14"/></svg>Trade</button>
+    <button class="mbtn" data-mtab="book" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3V4z"/><path d="M9 9h6M9 13h6"/></svg>Book<span class="dot" id="dot-book-m" hidden></span></button>
+    <button class="mbtn" data-mtab="lab" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18h16M6 18v-5M10 18V8M14 18v-7M18 18V5"/></svg>Lab</button>
+    <button class="mbtn" data-mtab="info" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 7.8v.3"/></svg>Data</button>
+  </nav>
 </div>
+
+<div id="sheetback"></div>
+<div id="sheet" role="dialog" aria-modal="true">
+  <div class="shead"><h2 id="sheet-title"></h2><button class="x" id="sheet-x" type="button" aria-label="Close">✕</button></div>
+  <div class="sbody" id="sheet-body"></div>
+</div>
+
+<div id="onboard" hidden>
+  <div class="ob-card">
+    <div class="brand" style="margin-bottom:2px">
+      <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#10131a"/><path d="M10 8v4M10 20v4" stroke="#22d483" stroke-width="2"/><rect x="7" y="12" width="6" height="8" rx="1.5" fill="#22d483"/><path d="M22 10v3M22 23v3" stroke="#f6465d" stroke-width="2"/><rect x="19" y="13" width="6" height="10" rx="1.5" fill="#f6465d"/></svg>
+      SignalFloor
+    </div>
+    <p style="margin:6px 0 0;font-size:.92rem;color:var(--muted)">An agent-to-agent paper trading desk for NSE stocks. Three moves:</p>
+    <div class="ob-step"><div class="ob-n">1</div><div><b>Scan the watchlist</b><p>An analyst rule set (RSI zones + SMA trend) reads real delayed daily bars and calls BUY, SELL or HOLD - with the reason on the card.</p></div></div>
+    <div class="ob-step"><div class="ob-n">2</div><div><b>Replay before you trust</b><p>Run your exact rules over real history bar by bar and watch where they would have bought and sold. Tune the rules in the lab and the chart redraws from the actual computation.</p></div></div>
+    <div class="ob-step"><div class="ob-n">3</div><div><b>Paper trade the plan</b><p>Queue an order and the executor books it at a future session's open once that bar arrives. Track cash, holdings and P&amp;L in the paper book.</p></div></div>
+    <div class="ob-honest">Simulation only. Delayed end-of-day data, no brokerage, no real orders, no real money. Simulated results are not evidence of real-world performance.</div>
+    <button id="ob-go" type="button">Open the desk</button>
+    <button class="ob-skip" id="ob-skip" type="button">Skip intro</button>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
 
 <script src="bars.js"></script>
 <script src="engine.js"></script>
