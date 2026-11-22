@@ -282,6 +282,45 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
+.evalview{font:15px/1.55 system-ui,-apple-system,sans-serif;color:var(--ink)}
+.evalview .eval-sub{color:var(--ink-soft);font-size:.85rem;margin-bottom:var(--s3);max-width:70ch}
+.evalview .eval-meta-cls{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);margin-bottom:var(--s4);max-width:75ch}
+.evalview .eval-controls{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-bottom:var(--s4)}
+.evalview .eval-controls label{font-family:var(--mono);font-size:.78rem;color:var(--ink-faint)}
+.evalview .eval-seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.evalview .eval-seg button{background:none;border:0;color:var(--ink-soft);font-family:var(--mono);font-size:.8rem;padding:8px 14px;cursor:pointer}
+.evalview .eval-seg button[aria-pressed=true]{background:var(--accent);color:#0a0810;font-weight:700}
+.evalview .eval-seg button:focus-visible{outline:2px solid var(--accent-soft);outline-offset:-2px}
+.evalview .eval-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:var(--s4);align-items:start}
+.evalview .eval-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:var(--s4);min-width:0}
+.evalview .eval-card h2{font-size:.8rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:var(--s3)}
+.evalview svg{width:100%;height:auto;display:block}
+.evalview .axis{fill:#9c92b4;font-family:var(--mono);font-size:11px}
+.evalview .eval-legend{display:flex;gap:var(--s4);font-family:var(--mono);font-size:.74rem;color:var(--ink-soft);margin-top:var(--s2);flex-wrap:wrap}
+.evalview .eval-legend i{display:inline-block;width:18px;border-top:2px solid;margin-right:6px;vertical-align:middle}
+.evalview .eval-caption{font-size:.78rem;color:var(--ink-soft);margin-top:var(--s3);line-height:1.5}
+.evalview .eval-caption strong{color:var(--warn);font-weight:600}
+.evalview .eval-sig{display:grid;grid-template-columns:auto 1fr;gap:2px var(--s3);padding:var(--s3) 0;border-bottom:1px solid var(--line-soft);font-size:.82rem}
+.evalview .eval-sig:last-child{border-bottom:0}
+.evalview .eval-sig .side{font-family:var(--mono);font-weight:700;font-size:.76rem;padding-top:2px}
+.evalview .eval-sig .side.b{color:var(--buy)}
+.evalview .eval-sig .side.s{color:var(--sell)}
+.evalview .eval-sig .eval-what{color:var(--ink)}
+.evalview .eval-sig .eval-when{font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);overflow-wrap:anywhere}
+.evalview .eval-sig .out{font-size:.74rem;font-family:var(--mono)}
+.evalview .eval-sig .out.ok{color:var(--buy)}
+.evalview .eval-sig .out.no{color:var(--sell)}
+.evalview .eval-sig .eval-reason{grid-column:2;font-size:.72rem;color:var(--ink-faint);font-family:var(--mono);line-height:1.45;overflow-wrap:anywhere}
+.evalview .eval-limits-cls{background:#191325;border:1px solid var(--line);border-radius:12px;padding:var(--s4);margin-top:var(--s4)}
+.evalview .eval-limits-cls h2{font-size:.8rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--warn);margin-bottom:var(--s2)}
+.evalview .eval-limits-cls li{color:var(--ink-soft);font-size:.82rem;margin-left:1.1em;margin-top:4px}
+.evalview .eval-stats-cls{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--s2)}
+.evalview .eval-stat{background:var(--panel);border:1px solid var(--line-soft);border-radius:10px;padding:var(--s3)}
+.evalview .eval-stat .eval-k{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+.evalview .eval-stat .eval-v{font-size:1.02rem;font-weight:650;font-variant-numeric:tabular-nums;margin-top:2px}
+@media(max-width:480px){
+.evalview .eval-grid{grid-template-columns:minmax(0,1fr)}
+}
 </style>
 </head>
 <body>
@@ -427,6 +466,59 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
   </div>
 </details>
 
+<details class="fold" open>
+  <summary>Strategy evaluation - one labeled research scenario</summary>
+  <div class="fold-body">
+    <div class="evalview">
+- one labeled research scenario</h1>
+
+<p class="eval-meta-cls" id="eval-meta"></p>
+
+<div class="eval-controls">
+  <label id="eval-feelabel">Hypothetical fee per side (research assumption, not a verified schedule)</label>
+  <div class="eval-seg" role="group" aria-labelledby="eval-feelabel" id="eval-fee-seg">
+    <button type="button" data-fee="0.0pct">0%</button>
+    <button type="button" data-fee="0.1pct" aria-pressed="true">0.1%</button>
+    <button type="button" data-fee="0.2pct">0.2%</button>
+  </div>
+</div>
+
+<div class="eval-grid">
+  <div class="eval-card">
+    <h2>Equity: strategy model vs buy-and-hold benchmark (both price return only)</h2>
+    <svg id="eval-chart" viewBox="0 0 640 300" data-vbw="640" role="img" aria-label="Equity curves"></svg>
+    <div class="eval-legend">
+      <span><i style="border-color:#ece9f7"></i>strategy model (paper)</span>
+      <span><i style="border-color:#8b7bd8;border-top-style:dashed"></i>equal-weight buy-and-hold</span>
+      <span><i style="border-color:#2fd08c"></i>filled attempt</span>
+      <span><i style="border-color:#ff6b5e"></i>rejected attempt (no cash effect)</span>
+    </div>
+    <p class="eval-caption" id="eval-chart-caption"></p>
+  </div>
+  <div class="eval-card">
+    <h2>Every selected signal (<span id="eval-sigcount"></span>): decision vs attempted execution</h2>
+    <div id="eval-siglist"></div>
+  </div>
+</div>
+
+<div class="eval-limits-cls">
+  <h2>Read this before the numbers</h2>
+  <ul id="eval-limits"></ul>
+</div>
+
+<details>
+  <summary>Scenario metrics</summary>
+  <div class="eval-body-cls"><div class="eval-stats-cls" id="eval-stats" style="margin-top:var(--s3)"></div></div>
+</details>
+
+<details>
+  <summary>Method and assumptions</summary>
+  <div class="eval-body-cls"><p id="eval-method"></p></div>
+</details>
+    </div>
+  </div>
+</details>
+
 <details class="fold">
   <summary>Latest recorded indicator snapshot</summary>
   <div class="fold-body">
@@ -512,5 +604,72 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
 
 </div>
 <script src="data.js"></script>
+<script src="eval_data.js"></script>
 <script src="app.js"></script>
+<script>
+const NS="http://www.w3.org/2000/svg";
+let cur=(location.hash||"").slice(1)||"0.1pct";if(!window.SF_EVAL||!window.SF_EVAL[cur])cur="0.1pct";
+function fmt(n){return n.toLocaleString("en-IN",{maximumFractionDigits:0})}
+function render(){
+  const S=window.SF_EVAL[cur], sum=S.summary;
+  document.querySelectorAll("#eval-fee-seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.fee===cur));
+  const st=sum.strategy, bh=sum.benchmark_price_return_only;
+  document.getElementById("eval-meta").textContent=
+    `Evaluation window ${sum.window.first_fill_day} to ${sum.window.last_day} (${sum.window.evaluation_sessions} sessions). `+
+    `Starting paper capital ₹10,00,000 (simulated). Input history is 6 months of recorded daily bars; `+
+    `the first 45 bars are burn-in for indicators, so returns cover the evaluation window only, not 6 months. `+
+    `Order sizing: the regular per-order gross budget is 25% of starting capital - a tranche, not a position cap; repeated buys stack exposure above 25%. A preserved legacy edge (minimum one share even above budget when cash covers it) means 25% is not a guaranteed ceiling; that edge was not reached in this sample.`;
+  document.getElementById("eval-chart-caption").innerHTML=
+    `<strong>Price return only - unequal omission:</strong> raw prices exclude dividend cash. The benchmark's fractional holdings `+
+    `had dividend entitlements (ex-date) of about ₹7,676 pre-tax in this window; the strategy's holdings had no such entitlement in this sample. `+
+    `This is not a total-wealth comparison. Markers show attempt sessions; rejected attempts did not change cash.`;
+  const eq=S.equity.filter(r=>r.date), xs=eq.map(r=>r.date);
+  const sers=eq.map(r=>+r.strategy_equity), serb=eq.map(r=>+r.benchmark_equity);
+  const svg=document.getElementById("eval-chart"); svg.innerHTML="";
+  const small=svg.clientWidth<480;
+  const W=small?400:640,H=small?330:300,P=small?{l:46,r:6,t:10,b:22}:{l:56,r:8,t:10,b:22};
+  const lo=Math.min(...sers,...serb)*0.998, hi=Math.max(...sers,...serb)*1.002;
+  const X=i=>P.l+(W-P.l-P.r)*i/(xs.length-1), Y=v=>P.t+(H-P.t-P.b)*(1-(v-lo)/(hi-lo));
+  for(let g=0;g<=4;g++){const v=lo+(hi-lo)*g/4,y=Y(v);
+    const t=document.createElementNS(NS,"text");t.setAttribute("x",4);t.setAttribute("y",y+3);t.setAttribute("class","axis");t.textContent=(v/100000).toFixed(1)+"L";svg.appendChild(t);
+    const l=document.createElementNS(NS,"line");l.setAttribute("x1",P.l);l.setAttribute("x2",W-P.r);l.setAttribute("y1",y);l.setAttribute("y2",y);l.setAttribute("stroke","#1e1830");svg.appendChild(l);}
+  const line=(vals,col,dash)=>{const p=document.createElementNS(NS,"polyline");
+    p.setAttribute("points",vals.map((v,i)=>X(i)+","+Y(v)).join(" "));p.setAttribute("fill","none");
+    p.setAttribute("stroke",col);p.setAttribute("stroke-width","1.6");if(dash)p.setAttribute("stroke-dasharray","5 4");svg.appendChild(p);};
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  line(serb,"#8b7bd8",true); line(sers,"#ece9f7",false);
+  const di=Object.fromEntries(xs.map((d,i)=>[d,i]));
+  S.signals.forEach(ev=>{const i=di[ev.execution_attempted];if(i==null)return;
+    const c=document.createElementNS(NS,"circle");c.setAttribute("cx",X(i));c.setAttribute("cy",Y(sers[i]));
+    c.setAttribute("r","3.4");c.setAttribute("fill",ev.outcome.startsWith("filled")?"#2fd08c":"#ff6b5e");svg.appendChild(c);});
+  const tl=document.createElementNS(NS,"text");tl.setAttribute("x",P.l);tl.setAttribute("y",H-6);tl.setAttribute("class","axis");tl.textContent=xs[0];svg.appendChild(tl);
+  const tr=document.createElementNS(NS,"text");tr.setAttribute("x",W-P.r);tr.setAttribute("y",H-6);tr.setAttribute("class","axis");tr.setAttribute("text-anchor","end");tr.textContent=xs[xs.length-1];svg.appendChild(tr);
+  // signals: stacked readable entries
+  document.getElementById("eval-sigcount").textContent=S.signals.length;
+  document.getElementById("eval-siglist").innerHTML=S.signals.map(ev=>{
+    const filled=ev.outcome.startsWith("filled");
+    return `<div class="eval-sig">
+      <span class="side ${ev.side==="BUY"?"b":"s"}">${ev.side}</span>
+      <span class="eval-what">${ev.symbol}</span>
+      <span></span><span class="eval-when">decided ${ev.decided} (close ₹${ev.decision_close}) · attempted ${ev.execution_attempted} (open ₹${ev.execution_price})</span>
+      <span></span><span class="out ${filled?"ok":"no"}">${filled?ev.outcome+" - qty "+ev.qty+", fee ₹"+ev.fee:ev.outcome+" - never filled, no cash effect"}</span>
+      <span class="eval-reason">${ev.signal_reason}</span>
+    </div>`;}).join("");
+  document.getElementById("eval-limits").innerHTML=sum.limits.map(l=>`<li>${l}</li>`).join("");
+  document.getElementById("eval-stats").innerHTML=[
+    ["Sessions",sum.window.evaluation_sessions],
+    ["Signals / fills",sum.signals_selected+" / "+sum.fills],
+    ["Strategy end (paper)","₹"+fmt(st.final_equity)],
+    ["Strategy price return",st.return_pct+"%"],
+    ["B&H price return",bh.return_pct+"%"],
+    ["Strategy max DD (close)",st.max_drawdown_close_to_close_pct+"%"],
+    ["B&H max DD (close)",bh.max_drawdown_close_to_close_pct+"%"],
+    ["Round trips completed","1"]
+  ].map(([k,v])=>`<div class="eval-stat"><div class="eval-k">${k}</div><div class="eval-v">${v}</div></div>`).join("");
+  document.getElementById("eval-method").textContent=sum.scenario+". "+sum.fee_note+".";
+}
+document.getElementById("eval-fee-seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cur=b.dataset.fee;render();});
+render();
+
+</script>
 </body>
