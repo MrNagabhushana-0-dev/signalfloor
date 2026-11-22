@@ -2,6 +2,10 @@
 // Upstreams: Yahoo Finance chart API (primary), Groww charting service (latest candle), Stooq CSV (fallback).
 // No keys, no user data, public market data only. Raw bars (not adjusted).
 export const config = { regions: ['bom1'] };
+// NSE session dates are IST calendar dates; upstream epochs are UTC. IST = UTC+5:30, no DST.
+function istDate(epochSec) {
+  return new Date(epochSec * 1000 + 19800 * 1000).toISOString().slice(0, 10);
+}
 const UA = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131 Safari/537.36' };
 
 function fromYahoo(j) {
@@ -68,7 +72,7 @@ export default async function handler(req, res) {
       const j = await r.json();
       const c = j && j.candles && j.candles[0];
       if (c && c.length >= 6 && c[4] != null) {
-        const bar = { date: new Date(c[0] * 1000).toISOString().slice(0, 10), open: c[1], high: c[2], low: c[3], close: c[4], volume: c[5] || 0 };
+        const bar = { date: istDate(c[0]), open: c[1], high: c[2], low: c[3], close: c[4], volume: c[5] || 0 };
         res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
         res.status(200).json({ symbol, upstream: 'groww', source: 'Groww charting service - latest daily bar only, raw (not adjusted)', asof: new Date().toISOString(), bars: [bar] });
         return;
