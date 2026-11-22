@@ -90,9 +90,14 @@ agent_config.yaml     # NOT committed - BAND agent credentials (see below)
 ```bash
 uv venv --python 3.11 && source .venv/bin/activate
 uv pip install -r requirements.txt
-# agent_config.yaml holds your own BAND agent IDs + API keys:
+# agent_config.yaml holds your own BAND agent IDs + API keys, room and handles
+# (no room or handle defaults are shipped in source - identifiers stay local):
 #   market_analyst: {agent_id: "...", api_key: "..."}
 #   trade_executor: {agent_id: "...", api_key: "..."}
+#   room_id: "<your BAND room uuid>"
+#   executor_handle: "<you>/trade-executor"
+#   analyst_handle: "<you>/market-analyst"
+# (env vars BAND_ROOM_ID / EXECUTOR_HANDLE / ANALYST_HANDLE also work)
 python agents/trade_executor.py &
 MAX_CYCLES=4 CYCLE_SECONDS=300 DEMO_MODE=true python agents/market_analyst.py
 ```

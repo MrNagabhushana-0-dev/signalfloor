@@ -20,7 +20,14 @@ configure_logging(logging.INFO)
 log = logging.getLogger("trade-executor")
 
 PORTFOLIO_PATH = os.environ.get("PORTFOLIO_PATH", os.path.expanduser("~/festiverse/data/paper_portfolio.json"))
-ANALYST_HANDLE = os.environ.get("ANALYST_HANDLE", "mr.nagabhushana.dev/market-analyst")
+def _cfg_value(key):
+    import yaml
+    cfg = yaml.safe_load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "agent_config.yaml")))
+    return cfg.get(key)
+
+ANALYST_HANDLE = os.environ.get("ANALYST_HANDLE") or _cfg_value("analyst_handle")
+if not ANALYST_HANDLE:
+    raise SystemExit("Set ANALYST_HANDLE via env or agent_config.yaml (see README); no defaults are shipped in source.")
 
 SENDER = re.compile(r"^\[(?P<sender>[^\]]+)\]:\s*(?P<text>.*)$", re.DOTALL)
 SIGNAL = re.compile(r"SIGNAL\s+(?P<sym>[A-Z0-9\.\^\-]+)\s+(?P<side>BUY|SELL)\s+price=(?P<price>[0-9\.]+)", re.I)

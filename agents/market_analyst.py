@@ -23,8 +23,15 @@ CYCLE_SECONDS = int(os.environ.get("CYCLE_SECONDS", "900"))
 MAX_CYCLES = int(os.environ.get("MAX_CYCLES", "0"))  # 0 = run forever (deployment); tests set a bound
 DEMO_MODE = os.environ.get("DEMO_MODE", "true").lower() == "true"
 POST_STATUS = os.environ.get("POST_STATUS", "true").lower() == "true"  # post visible NO-TRADE status on flat cycles
-EXECUTOR_HANDLE = os.environ.get("EXECUTOR_HANDLE", "mr.nagabhushana.dev/trade-executor")
-ROOM_ID = os.environ.get("BAND_ROOM_ID", "49aadbc7-32f4-4a1b-b3b0-2e69307defef")
+def _cfg_value(key):
+    import yaml
+    cfg = yaml.safe_load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "agent_config.yaml")))
+    return cfg.get(key)
+
+EXECUTOR_HANDLE = os.environ.get("EXECUTOR_HANDLE") or _cfg_value("executor_handle")
+ROOM_ID = os.environ.get("BAND_ROOM_ID") or _cfg_value("room_id")
+if not EXECUTOR_HANDLE or not ROOM_ID:
+    raise SystemExit("Set EXECUTOR_HANDLE and BAND_ROOM_ID via env or agent_config.yaml (see README); no defaults are shipped in source.")
 
 SENDER = re.compile(r"^\[(?P<sender>[^\]]+)\]:\s*(?P<text>.*)$", re.DOTALL)
 checkpointer = InMemorySaver()
