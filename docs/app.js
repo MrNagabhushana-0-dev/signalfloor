@@ -314,7 +314,7 @@
       if (!snap.side) return;
       var r = tryFill(portfolio, snap.symbol, snap.side, snap.price);
       var el = $("fill-result");
-      el.textContent = (r.ok ? "" : "") + r.msg + "  (simulated against the recorded paper portfolio; resets on reload)";
+      el.textContent = (r.ok ? "" : "") + r.msg + "  (what-if simulation on the recorded 2026-11-19 book; resets on reload)";
       el.className = r.ok ? "fill-ok" : "fill-fail";
       renderPortfolio();
     });

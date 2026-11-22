@@ -63,8 +63,13 @@ header.topbar{
   border:1px solid var(--line);border-radius:18px;padding:var(--s5);
   box-shadow:0 30px 80px -30px rgba(0,0,0,.7);
 }
-.console-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:var(--s5);align-items:start}
+.console-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:var(--s5);align-items:start}
 .col-main{display:flex;flex-direction:column;gap:var(--s4)}
+.col-side{display:flex;flex-direction:column;gap:var(--s3)}
+.console-under{margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)}
+.under-folds{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.hint{font-size:.82rem;color:var(--ink-soft);margin:0}
+.scenario-note{font-size:.8rem;color:var(--warn);margin:0;font-family:var(--mono);line-height:1.5}
 
 .wb-controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
 .chip{
@@ -124,7 +129,7 @@ header.topbar{
 }
 .chart-box svg{display:block;width:100%;height:auto}
 .chart-box .grid{stroke:#241d3a;stroke-width:1}
-.chart-box .gtext{font-family:var(--mono);font-size:9px;fill:#6d6288;text-anchor:end}
+.chart-box .gtext{font-family:var(--mono);font-size:9px;fill:#857a9e;text-anchor:end}
 .chart-box .area{fill:url(#areagrad)}
 .chart-box .line-price{fill:none;stroke:#ece9f7;stroke-width:2;filter:drop-shadow(0 0 5px rgba(163,148,214,.6))}
 .chart-box .line-s10{fill:none;stroke:#8b7bd8;stroke-width:1.5;stroke-dasharray:5 3}
@@ -260,6 +265,7 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
   .stages{grid-template-columns:repeat(2,1fr)}
   .stage:nth-child(2)::after{display:none}
   .console-grid{grid-template-columns:1fr}
+  .under-folds{grid-template-columns:1fr}
 }
 @media (max-width:560px){
   .wrap{padding:0 var(--s4)}
@@ -303,8 +309,12 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
             <span id="asof-label" class="asof-label"></span>
           </div>
         </div>
+        <p class="hint">Signals computed as of the selected session from recorded bars - a decision view, not a backtest of performance.</p>
         <div id="signal-out"></div>
         <div id="executor-box" hidden>
+          <p class="scenario-note">What-if scenario: each click books a simulated fill at the selected session's close on top of the
+          recorded end-of-run paper book (2026-11-19). Not a backtest; the simulated P&amp;L below is not a performance measure.
+          Reset restores the recorded book.</p>
           <div class="wb-actions">
             <button type="button" class="btn" id="fill-btn"></button>
             <button type="button" class="btn ghost" id="reset-btn">Reset paper book</button>
@@ -312,6 +322,8 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
           <div id="fill-result"></div>
           <p class="portfolio-line" id="portfolio-line" aria-live="polite"></p>
         </div>
+      </div>
+      <div class="col-side">
         <div>
           <div class="chart-box" id="chart"></div>
           <div class="chart-legend">
@@ -323,13 +335,15 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
         </div>
         <div id="scan-result" class="scan-result"></div>
       </div>
-      <aside class="col-side" aria-label="Indicators and rules">
-        <div class="metrics" id="metrics"></div>
+    </div>
+    <div class="console-under">
+      <div class="metrics" id="metrics" aria-label="Indicators"></div>
+      <div class="under-folds">
         <details class="why">
           <summary>Why this verdict, rule by rule</summary>
           <ul class="rules" id="rules"></ul>
         </details>
-        <details class="prov" style="margin-top:var(--s3)">
+        <details class="prov">
           <summary>Data provenance</summary>
           <p class="wb-src">Dataset: 127 recorded daily bars per symbol (NSE, via Yahoo Finance public chart endpoint - the same
           source family the agents used through yfinance), captured 2026-11-22. Last bar 2026-11-20. Delayed public data,
@@ -337,7 +351,7 @@ footer p{max-width:52rem;margin:0 0 var(--s3)}
           the Finch zone decision uses the last closed bar, as the agents do. The console runs entirely in your browser -
           no network calls, nothing leaves it.</p>
         </details>
-      </aside>
+      </div>
     </div>
   </div>
 </section>
