@@ -54,8 +54,22 @@ if (!inputs.symbols.includes(inputs.testSymbol)) inputs.testSymbol = inputs.symb
 
 let book = loadJSON(LS_BOOK, null);
 if (!book || book.v !== 1) book = { v: 1, cash: START_CASH, positions: {}, orders: [], done: [] };
-for (const o of book.orders) { o.mode = o.mode || "rule"; o._id = o._id || (Date.now() + Math.random()); }
-for (const o of book.done) o.mode = o.mode || "rule";
+for (const o of book.orders) { o.mode = o.mode || "rule"; o._id = o._id || (Date.now() + Math.random()); o.placedAt = o.placedAt || (o.decided + "T15:30:00+05:30"); }
+for (const o of book.done) { o.mode = o.mode || "rule"; o.placedAt = o.placedAt || (o.decided + "T15:30:00+05:30"); }
+
+// IST helpers (UTC+5:30, no DST). An order may only fill at a session whose bar
+// was not already in the past when the order was actually placed: pre-open
+// placements may fill at that day's open; placements during/after market hours
+// fill at a later session's open. Never book an already-past open as attainable.
+function istParts(iso) {
+  const t = new Date(new Date(iso).getTime() + 19800e3);
+  return { day: t.toISOString().slice(0, 10), mins: t.getUTCHours() * 60 + t.getUTCMinutes() };
+}
+function fillableDay(placedAt) {
+  const p = istParts(placedAt);
+  if (p.mins < 555) return p.day; // placed before 09:15 IST: same day's open is attainable
+  return new Date(new Date(p.day + "T00:00:00Z").getTime() + 86400e3).toISOString().slice(0, 10);
+}
 
 let ticket = { side: "BUY" };
 let refreshing = false;
@@ -115,7 +129,8 @@ function tryFillOrders() {
     if (o.status !== "pending") continue;
     const rows = BARS[o.sym];
     if (!rows) continue;
-    const next = rows.find(r => r[0] > o.decided);
+    const minDay = fillableDay(o.placedAt);
+    const next = rows.find(r => r[0] > o.decided && r[0] >= minDay);
     if (!next) continue;
     const [odate, open] = next;
     if (o.side === "BUY") {
@@ -169,7 +184,7 @@ function renderBook() {
   }).join("");
   const pend = book.orders.map(o =>
     `<div class="order"><span class="st pending">pending</span><b>${o.side}</b> ${o.sym.replace(".NS", "")}${o.mode === "shares" ? " x " + o.qty : ""}
-      <div class="meta">decided ${o.decided} (close ${inr(o.decidedClose)}) - ${o.note || "fills at the first loaded session after the decision bar"}</div>
+      <div class="meta">decided on bar ${o.decided} (close ${inr(o.decidedClose)}) - ${o.note || "fills at the first attainable session open"}</div>
       <button class="linklike" data-cancel="${o._id}">cancel order</button></div>`).join("");
   const done = book.done.slice(-8).reverse().map(o =>
     `<div class="order"><span class="st ${o.status}">${o.status}</span><b>${o.side}</b> ${o.sym.replace(".NS", "")}${o.qty ? " " + o.qty + " @ " + inr(o.open) : ""}
@@ -215,8 +230,8 @@ $("scan").addEventListener("click", e => {
   const b = e.target.closest("button[data-queue]");
   if (!b) return;
   const sym = b.dataset.queue, side = b.dataset.side, bar = latestBar(sym);
-  book.orders.push({ _id: Date.now() + Math.random(), sym, side, mode: "rule", decided: bar[0], decidedClose: bar[4], status: "pending",
-    note: "rule-sized (" + inputs.budgetPct + "% of start cash); fills at the first loaded session after " + bar[0] });
+  book.orders.push({ _id: Date.now() + Math.random(), sym, side, mode: "rule", decided: bar[0], decidedClose: bar[4], status: "pending", placedAt: new Date().toISOString(),
+    note: "rule-sized (" + inputs.budgetPct + "% of start cash); placed " + istParts(new Date().toISOString()).day + " IST - fills at the first session open that is not already in the past, once its bar arrives via Refresh data" });
   saveJSON(LS_BOOK, book);
   renderAll();
 });
@@ -277,8 +292,8 @@ $("t-submit").addEventListener("click", () => {
     if (q > held) return fail(`You hold ${held} share${held === 1 ? "" : "s"} - cannot sell ${q}.`);
   }
   book.orders.push({ _id: Date.now() + Math.random(), sym, side: ticket.side, mode: "shares", qty: q,
-    decided: b[0], decidedClose: b[4], status: "pending",
-    note: "fills at the first loaded session after " + b[0] + " - hit Refresh data after the next session" });
+    decided: b[0], decidedClose: b[4], status: "pending", placedAt: new Date().toISOString(),
+    note: "placed " + istParts(new Date().toISOString()).day + " IST - fills at the first session open that is not already in the past, once its bar arrives via Refresh data" });
   saveJSON(LS_BOOK, book);
   $("t-qty").value = ""; $("t-est").textContent = "";
   $("t-ok").textContent = `${ticket.side} ${q} ${sym.replace(".NS", "")} queued - pending until newer bars arrive.`;
@@ -382,7 +397,7 @@ function renderProv() {
     <li>Per-symbol coverage: ${ranges.join("; ")}.</li>
     ${errs.length ? `<li class="errline">Baseline failed fetches: ${errs.map(([s, e]) => `${s} (${e})`).join("; ")}. Failed symbols are excluded, never guessed.</li>` : ""}
     <li>Rules are the ones set in the rule lab; every number on this page is recomputed in your browser from the loaded bars when an input changes. No precomputed scenarios.</li>
-    <li>Fills use the first loaded session after the decision bar, at its open - mechanical paper accounting, no spread/slippage/impact, not a matched-risk control.</li>
+    <li>Fills use the first session whose open was not already in the past when the order was actually placed (pre-open placements: that day's open; later placements: a later session), at its open, once that bar is loaded - an order never books an already-past price. Mechanical paper accounting: no spread/slippage/impact, not a matched-risk control.</li>
     <li>Real-time/intraday feed: unavailable in this build (delayed daily bars only). Brokerage connection: not present by design.</li>
     <li>Inputs, cached bars and paper book persist in this browser's local storage only; clearing site data erases them. No server-side account state exists.</li>
   </ul>`;

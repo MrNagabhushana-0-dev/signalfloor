@@ -134,7 +134,9 @@
     <span class="badge">Simulation only</span>
     <div class="sub">Paper trading console for NSE equities. Signals and order execution run the
       <b>same rule logic as the BAND-room analyst and executor agents</b>, recomputed locally in your
-      browser from delayed daily bars. No brokerage, no real orders, no real money.</div>
+      browser from delayed daily bars. This console is not connected to the live BAND room -
+      live agent-to-agent messaging happens only in the separate Python agents (archived replay linked below).
+      No brokerage, no real orders, no real money.</div>
   </header>
 
   <div class="datarow">
@@ -159,7 +161,7 @@
 
       <div class="card ticket">
         <h2>Order ticket</h2>
-        <div class="role">Manual paper order - fills at the next session's open bar after it arrives via Refresh data</div>
+        <div class="role">Manual paper order - fills at the first session open that is not already in the past, once that bar arrives via Refresh data</div>
         <label>Side</label>
         <div class="seg">
           <button type="button" id="side-buy">Buy</button>
