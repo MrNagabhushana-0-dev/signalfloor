@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SignalFloor - your rules, your watchlist, computed now</title>
+<style>
+:root{--bg:#0a0810;--panel:#14101f;--line:#2a2340;--line-soft:#1e1830;--ink:#ece9f7;--ink-soft:#b8b0cc;--ink-faint:#9c92b4;--accent:#8b7bd8;--accent-soft:#b7a9f5;--buy:#2fd08c;--sell:#ff6b5e;--warn:#e8c268;--mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:var(--s4)}
+h1{font-size:1.55rem;letter-spacing:-.02em;margin:0}
+h1 .dot{color:var(--accent-soft)}
+.sub{color:var(--ink-soft);font-size:.9rem;margin:4px 0 0;max-width:70ch}
+header.top{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line-soft);padding-bottom:var(--s3);margin-bottom:var(--s4)}
+.badges{display:flex;gap:var(--s3);font-family:var(--mono);font-size:.72rem;color:var(--ink-faint)}
+.badges a{color:var(--accent-soft)}
+.banner{border:1px solid #4a3a1a;background:#1d1608;color:var(--warn);border-radius:10px;padding:10px var(--s3);font-size:.82rem;margin:var(--s4) 0}
+.banner strong{color:#f2d489}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:var(--s4);align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:var(--s4)}
+.panel h2{font-size:.8rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 var(--s3)}
+.panel h2 .live{color:var(--buy)}
+fieldset{border:0;padding:0;margin:0 0 var(--s4)}
+legend{font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);margin-bottom:var(--s2);text-transform:uppercase;letter-spacing:.06em}
+.symlist{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.symlist label{display:flex;gap:6px;align-items:center;font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);padding:4px 6px;border:1px solid var(--line-soft);border-radius:6px;cursor:pointer}
+.symlist label.on{border-color:var(--accent);color:var(--ink)}
+.numgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+.numgrid label{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);display:flex;flex-direction:column;gap:2px}
+.numgrid input,.numgrid select{background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:var(--mono);font-size:.85rem;padding:6px 8px;width:100%}
+.toggle{display:flex;gap:var(--s2);align-items:center;font-size:.82rem;color:var(--ink-soft);margin-top:var(--s2)}
+.savestate{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);margin-top:var(--s3)}
+.errline{font-family:var(--mono);font-size:.7rem;color:var(--sell);margin-top:var(--s2);overflow-wrap:anywhere}
+.symrow{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);align-items:center;padding:var(--s3) 0;border-bottom:1px solid var(--line-soft)}
+.symrow:last-child{border-bottom:0}
+.symrow .name{font-family:var(--mono);font-weight:700;font-size:.9rem}
+.symrow .px{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft)}
+.symrow .inds{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint)}
+.verdict{font-family:var(--mono);font-weight:700;font-size:.8rem;padding:4px 10px;border-radius:6px;text-align:center}
+.verdict.BUY{color:var(--buy);border:1px solid var(--buy)}
+.verdict.SELL{color:var(--sell);border:1px solid var(--sell)}
+.verdict.NO{color:var(--ink-faint);border:1px solid var(--line)}
+.reason{grid-column:1/-1;font-family:var(--mono);font-size:.72rem;color:var(--ink-faint)}
+.rowactions{grid-column:1/-1;display:flex;gap:var(--s2)}
+button{background:var(--accent);color:#0a0810;border:0;border-radius:8px;font-weight:700;font-size:.8rem;padding:8px 14px;cursor:pointer}
+button.ghost{background:none;border:1px solid var(--line);color:var(--ink-soft);font-weight:400}
+button:disabled{opacity:.4;cursor:default}
+.bookline{display:flex;flex-wrap:wrap;gap:var(--s4);font-family:var(--mono);font-size:.8rem}
+.bookline b{display:block;font-size:.68rem;color:var(--ink-faint);font-weight:400;text-transform:uppercase;letter-spacing:.06em}
+.bookline span{font-size:1rem;font-variant-numeric:tabular-nums}
+.order{font-family:var(--mono);font-size:.74rem;color:var(--ink-soft);padding:6px 0;border-bottom:1px solid var(--line-soft)}
+.order:last-child{border-bottom:0}
+.order .st-pending{color:var(--warn)}
+.order .st-filled{color:var(--buy)}
+details{margin-top:var(--s4)}
+details summary{cursor:pointer;font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);padding:var(--s3);border:1px solid var(--line-soft);border-radius:10px;list-style:none}
+details summary::before{content:'+ ';color:var(--accent)}
+details[open] summary::before{content:'- '}
+details .inner{padding:var(--s3) 2px;font-size:.85rem;color:var(--ink-soft)}
+details .inner li{margin:4px 0 4px 1.1em;font-size:.8rem}
+.mono{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint)}
+.ev{font-family:var(--mono);font-size:.74rem;color:var(--ink-soft);padding:6px 0;border-bottom:1px solid var(--line-soft)}
+.ev:last-child{border-bottom:0}
+.ev .B{color:var(--buy);font-weight:700}
+.ev .S{color:var(--sell);font-weight:700}
+.ev .ok{color:var(--buy)}
+.ev .no{color:var(--sell)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:var(--s2);margin-top:var(--s3)}
+.kv div{background:var(--bg);border:1px solid var(--line-soft);border-radius:10px;padding:var(--s3)}
+.kv b{display:block;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:400}
+.kv span{font-size:1rem;font-weight:650;font-variant-numeric:tabular-nums}
+footer{margin-top:var(--s5);border-top:1px solid var(--line-soft);padding-top:var(--s3);color:var(--ink-faint);font-size:.78rem}
+footer a{color:var(--accent-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>SignalFloor<span class="dot">.</span></h1>
+    <p class="sub">Your watchlist, your rules, computed now from delayed public daily bars. Paper fills only.</p>
+  </div>
+  <div class="badges"><span>simulation only</span><span id="hdr-fetched">source: ...</span><a href="https://github.com/MrNagabhushana-0-dev/signalfloor">source</a></div>
+</header>
+
+<div class="banner"><strong>Simulation, not a live service.</strong> Delayed public daily-bar data, computed in your browser. Paper fills only - no brokerage connection, no real orders, no investment advice.</div>
+
+<div class="grid">
+  <div class="panel" id="inputs-panel">
+    <h2>Inputs <span class="live">- recompute on change</span></h2>
+    <fieldset>
+      <legend>Watchlist (fetched universe)</legend>
+      <div class="symlist" id="symlist"></div>
+      <div id="fetch-errors"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Rules</legend>
+      <div class="numgrid">
+        <label>RSI period<input id="in-rsiPeriod" type="number" min="2" max="50" step="1"></label>
+        <label>SMA fast<input id="in-smaFast" type="number" min="2" max="100" step="1"></label>
+        <label>Oversold<input id="in-oversold" type="number" min="1" max="49" step="0.5"></label>
+        <label>Overbought<input id="in-overbought" type="number" min="51" max="99" step="0.5"></label>
+        <label>SMA slow<input id="in-smaSlow" type="number" min="3" max="200" step="1"></label>
+        <label>Order budget %<input id="in-budgetPct" type="number" min="1" max="100" step="1"></label>
+        <label>Fee % per side<input id="in-feePct" type="number" min="0" max="5" step="0.05"></label>
+      </div>
+      <label class="toggle"><input id="in-trendFilter" type="checkbox"> SMA trend filter (no buys in downtrend, no sells in uptrend)</label>
+    </fieldset>
+    <div class="savestate">Inputs and paper book are saved in this browser only. No account, no sync, nothing leaves the page.</div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Scan - latest loaded bar</h2>
+      <div id="scan"></div>
+    </div>
+
+    <div class="panel" style="margin-top:var(--s4)">
+      <h2>Paper book (persists across refresh)</h2>
+      <div class="bookline" id="bookline"></div>
+      <div id="orders"></div>
+      <div class="rowactions" style="margin-top:var(--s3)">
+        <button class="ghost" id="btn-reset-book" type="button">Reset paper book</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:var(--s4)">
+      <h2>Rule test - your rules over the loaded history</h2>
+      <div class="mono" style="margin-bottom:var(--s2)">Same rule engine, every loaded bar, fills at next bar's open. Recomputed on every input change.</div>
+      <div class="numgrid" style="max-width:260px"><label>Symbol<select id="in-testSymbol"></select></label></div>
+      <div class="kv" id="test-stats"></div>
+      <div id="test-events"></div>
+    </div>
+  </div>
+</div>
+
+<details>
+  <summary>Provenance and limits</summary>
+  <div class="inner" id="provenance"></div>
+</details>
+
+<footer>
+  Built by team 0dev for the Diwali Festiverse Agent-to-Agent Hackathon (India Edition). More of this builder's work: <a href="https://www.mr-nagabhushanaraju-s.engineer/">mr-nagabhushanaraju-s.engineer</a><br>
+  Simulation only - no real trades, no investment advice. This page makes no live calls and collects nothing. Archived frozen build (recorded replay + audited research scenario): <a href="https://github.com/MrNagabhushana-0-dev/signalfloor/tree/main/archive/docs-2026-11-22-frozen">archive</a>.
+</footer>
+</div>
+<script src="bars.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
