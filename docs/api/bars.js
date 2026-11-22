@@ -1,6 +1,7 @@
 // SignalFloor data proxy: same-origin server-side fetch of delayed daily bars.
-// Upstreams: Yahoo Finance chart API (primary), Stooq CSV (fallback).
+// Upstreams: Yahoo Finance chart API (primary), Groww charting service (latest candle), Stooq CSV (fallback).
 // No keys, no user data, public market data only. Raw bars (not adjusted).
+export const config = { regions: ['bom1'] };
 const UA = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131 Safari/537.36' };
 
 function fromYahoo(j) {
@@ -58,7 +59,24 @@ export default async function handler(req, res) {
       else tries.push('yahoo: no daily bars');
     }
   } catch (e) { tries.push(`yahoo fetch failed: ${String(e).slice(0, 120)}`); }
-  // Fallback: Stooq CSV (symbols like TCS.NS -> TCS.IN)
+  // Fallback 1: Groww charting service (latest daily candle only)
+  try {
+    const gSym = symbol.replace(/\.NS$/, '');
+    const r = await fetch(`https://groww.in/v1/api/charting_service/v2/chart/exchange/NSE/segment/CASH/${encodeURIComponent(gSym)}/daily?intervalInMinutes=1440&minimal=false`, { headers: UA });
+    tries.push(`groww HTTP ${r.status}`);
+    if (r.ok) {
+      const j = await r.json();
+      const c = j && j.candles && j.candles[0];
+      if (c && c.length >= 6 && c[4] != null) {
+        const bar = { date: new Date(c[0] * 1000).toISOString().slice(0, 10), open: c[1], high: c[2], low: c[3], close: c[4], volume: c[5] || 0 };
+        res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+        res.status(200).json({ symbol, upstream: 'groww', source: 'Groww charting service - latest daily bar only, raw (not adjusted)', asof: new Date().toISOString(), bars: [bar] });
+        return;
+      }
+      tries.push('groww: no candle');
+    }
+  } catch (e) { tries.push(`groww fetch failed: ${String(e).slice(0, 120)}`); }
+  // Fallback 2: Stooq CSV (symbols like TCS.NS -> TCS.IN)
   try {
     const stooqSym = symbol.replace(/\.NS$/, '.IN').toLowerCase();
     const r = await fetch(`https://stooq.com/q/d/l/?s=${encodeURIComponent(stooqSym)}&i=d`, { headers: UA });
