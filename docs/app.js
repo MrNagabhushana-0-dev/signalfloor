@@ -19,11 +19,17 @@ const inr = n => "₹" + Number(n).toLocaleString("en-IN", { maximumFractionDigi
 const istNow = () => new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: false }) + " IST";
 
 // ---------- merged bar store: build-time baseline + fetched bars ----------
-function mergeRows(base, extra) {
+// Per-date resolution by source fetch time: a stale browser cache must never
+// overwrite a newer corrected build-time baseline (or vice versa).
+function mergeRows(base, extra, baseAsOf, extraAsOf) {
   const byDate = new Map();
-  for (const r of (base || [])) byDate.set(r[0], r);
-  for (const r of (extra || [])) byDate.set(r[0], [r.date, r.open, r.high, r.low, r.close, r.volume || 0]);
-  const rows = [...byDate.values()].sort((a, b) => a[0] < b[0] ? -1 : 1);
+  for (const r of (base || [])) byDate.set(r[0], { row: r, asof: baseAsOf || "" });
+  for (const r of (extra || [])) {
+    const row = [r.date, r.open, r.high, r.low, r.close, r.volume || 0];
+    const cur = byDate.get(row[0]);
+    if (!cur || (extraAsOf || "") >= cur.asof) byDate.set(row[0], { row, asof: extraAsOf || "" });
+  }
+  const rows = [...byDate.values()].map(v => v.row).sort((a, b) => a[0] < b[0] ? -1 : 1);
   return rows.slice(-160);
 }
 
@@ -35,7 +41,7 @@ const BARS = {}; // sym -> rows
 function rebuildBars() {
   for (const k of Object.keys(BARS)) delete BARS[k];
   const syms = new Set([...Object.keys(DATA.symbols), ...Object.keys(lsBars.symbols)]);
-  for (const s of syms) BARS[s] = mergeRows(DATA.symbols[s], lsBars.symbols[s]);
+  for (const s of syms) BARS[s] = mergeRows(DATA.symbols[s], lsBars.symbols[s], DATA.meta.fetched_at_utc, (lsBars.status[s] || {}).asof);
 }
 rebuildBars();
 const allSyms = () => Object.keys(BARS).sort();
@@ -133,6 +139,14 @@ function tryFillOrders() {
     const next = rows.find(r => r[0] > o.decided && r[0] >= minDay);
     if (!next) continue;
     const [odate, open] = next;
+    // Truthful gap policy: if the fill bar is later than the earliest eligible
+    // session, intervening sessions were never loaded (latest-bar-only feed or
+    // missed refreshes). The fill price is real and after placement, but it is
+    // the first OBSERVED eligible open - label it, never claim it was the first.
+    let e = new Date(minDay + "T00:00:00Z");
+    while (e.getUTCDay() === 0 || e.getUTCDay() === 6) e = new Date(e.getTime() + 86400e3);
+    const firstEligibleWeekday = e.toISOString().slice(0, 10);
+    if (odate > firstEligibleWeekday) o.delayedObservation = true; else delete o.delayedObservation;
     if (o.side === "BUY") {
       let qty;
       if (o.mode === "shares") qty = o.qty;
@@ -148,7 +162,7 @@ function tryFillOrders() {
         pos.avg = pos.qty === 0 ? open : (pos.avg * pos.qty + open * qty) / (pos.qty + qty);
         pos.qty += qty; book.positions[o.sym] = pos;
         o.status = "filled"; o.filled = odate; o.open = open; o.qty = qty; o.fee = +fee.toFixed(2); delete o.note;
-      } else { o.status = "rejected"; o.note = "insufficient paper cash at the fill bar"; }
+      } else { o.status = "rejected"; o.note = "insufficient paper cash at the fill bar"; delete o.delayedObservation; }
     } else {
       const pos = book.positions[o.sym];
       const held = pos ? pos.qty : 0;
@@ -158,7 +172,7 @@ function tryFillOrders() {
         book.cash += proceeds - fee;
         pos.qty -= qty; if (pos.qty <= 0) delete book.positions[o.sym];
         o.status = "filled"; o.filled = odate; o.open = open; o.qty = qty; o.fee = +fee.toFixed(2); delete o.note;
-      } else { o.status = "rejected"; o.note = "no open paper position (no shorting)"; }
+      } else { o.status = "rejected"; o.note = "no open paper position (no shorting)"; delete o.delayedObservation; }
     }
     book.done.push(Object.assign({}, o));
     o._arch = true; changed = true;
@@ -188,7 +202,8 @@ function renderBook() {
       <button class="linklike" data-cancel="${o._id}">cancel order</button></div>`).join("");
   const done = book.done.slice(-8).reverse().map(o =>
     `<div class="order"><span class="st ${o.status}">${o.status}</span><b>${o.side}</b> ${o.sym.replace(".NS", "")}${o.qty ? " " + o.qty + " @ " + inr(o.open) : ""}
-      <div class="meta">${o.filled ? "filled " + o.filled + " (open)" : ""}${o.fee ? " · fee " + inr(o.fee) : ""}${o.note ? o.note : ""}</div></div>`).join("");
+      <div class="meta">${o.filled ? "filled " + o.filled + " (open)" : ""}${o.fee ? " · fee " + inr(o.fee) : ""}${o.note ? o.note : ""}</div>
+      ${o.delayedObservation ? `<div class="meta">fill at the first OBSERVED eligible session - sessions between placement and this bar were not loaded, so this may not be the actual first eligible session's open</div>` : ""}</div>`).join("");
   $("orders").innerHTML = pos + pend + done || '<div class="empty">No positions or orders yet. Queue one from a signal, or place one manually with the order ticket.</div>';
 }
 
@@ -397,7 +412,8 @@ function renderProv() {
     <li>Per-symbol coverage: ${ranges.join("; ")}.</li>
     ${errs.length ? `<li class="errline">Baseline failed fetches: ${errs.map(([s, e]) => `${s} (${e})`).join("; ")}. Failed symbols are excluded, never guessed.</li>` : ""}
     <li>Rules are the ones set in the rule lab; every number on this page is recomputed in your browser from the loaded bars when an input changes. No precomputed scenarios.</li>
-    <li>Fills use the first session whose open was not already in the past when the order was actually placed (pre-open placements: that day's open; later placements: a later session), at its open, once that bar is loaded - an order never books an already-past price. Mechanical paper accounting: no spread/slippage/impact, not a matched-risk control.</li>
+    <li>Fills use the first session whose open was not already in the past when the order was actually placed (pre-open placements: that day's open; later placements: a later session), at its open, once that bar is loaded - an order never books an already-past price. Because refresh sources can return only the latest bar, a fill that landed later than the earliest eligible session is labeled "first observed eligible session": intervening unobserved sessions mean it may not be the actual first eligible open. Mechanical paper accounting: no spread/slippage/impact, not a matched-risk control.</li>
+    <li>Bar conflicts between the build-time baseline and browser-cached refreshes resolve per date toward the source fetched more recently; a stale cache never overwrites a newer corrected baseline.</li>
     <li>Real-time/intraday feed: unavailable in this build (delayed daily bars only). Brokerage connection: not present by design.</li>
     <li>Inputs, cached bars and paper book persist in this browser's local storage only; clearing site data erases them. No server-side account state exists.</li>
   </ul>`;
